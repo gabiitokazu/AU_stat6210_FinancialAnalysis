@@ -1,0 +1,64 @@
+---
+output: html_document
+pagetitle: "Homework 2, Group 9: to the Boss"
+---
+
+ ```{css, echo=FALSE}
+     .disclosure{
+     text-align: justify;
+     margin-left: auto;
+     margin-right: auto;
+     font-style: italic;
+     width: 80%;
+     }
+
+```
+
+
+## Dear Boss,
+### Please find our finalized report below.
+\
+
+#### Best regards,
+##### Ana Gabriela Itokazu, Jianfeng Zhang, and Takhellambam Bijoychandra Singh.
+
+
+***
+<div class="disclosure">
+
+Portfolio developed for a homework activity during the class STAT 6210 - R Programming for Data Science (Auburn University, Fall 2020). The general idea is that the group works as a quantitative analysts for an investment bank, and we needed to present a Portfolio for our boss (Dr. Molinari, in this very real case) with the a client's options. This document was finalized in `r format(Sys.Date(), '%B %d, %Y')`. One can find more about this assignment [here](https://github.com/AU-R-Programming/HW2-9/blob/master/ToTheBoss.Rmd).
+
+</div>
+
+
+<div style="text-align: justify">
+
+***
+# Financial Report
+
+#### Required output: Provide an html file for your boss which would allow them to replicate your analysis based on your explanations, codes and comments.
+
+Suppose that you are working in an investment bank as a quantitative analyst. Your boss asks you to create a portfolio for one of your clients. The client wants to find the portfolio with the smallest variance that satisfies the following constraints:
+
+- Considers only 5 companies of the S&P500.
+- The investment C is exactly $1,000,000.
+- You are allowed to invest in a maximum of 3 stocks.
+
+If needed, it is possible to consider weights with negative values. This means that you are allowed to short stocks.
+
+Your boss wants you to compute all possible portfolios that satisfy the client’s constraints, for each portfolio size (i.e. 1, 2 and 3 stocks) create a matrix with understandable row and column names in which, for each portfolio, you will store weights (when considering more than one stock in a portfolio),
+expected returns and risk, represent them graphically as (for example) in the graph below, and provide the weights of the best (i.e. minimum variance) portfolio with expected return and risk (i.e. variance).
+For the last task, in order to find the optimal weights we denote the vector of weights as \(\mathbf{w} \in \mathbb{R}^p\), where \(p\) is the number of stocks to invest, and denote the variance-covariance matrix of stocks as \(\mathbf{\Sigma}\). Then given the constraint that \(\mathbf{w}^T \mathbf{1} = 1\), where \(\mathbf{1}\) is the vector of \(1\) of length \(p\), we can construct the objective function with Lagrange multiplier as \(f(\mathbf{w}) = \mathbf{w}^T \mathbf{\Sigma} \mathbf{w} + \lambda(\mathbf{w}^T \mathbf{1} - 1)\) with some \(\lambda\). The optimal weights are therefore given by \[
+\mathbf{w}^* = \frac{\mathbf{\Sigma}^{-1} \mathbf{1}}{\mathbf{1}^T \mathbf{\Sigma}^{-1} \mathbf{1}}.
+\] Based on these weights, the expected return and risk are respectively given by \[\mu^* = ({\mathbf{w}^*}^T \mathbf{\mu}) \,C\] and \[\sigma^* = ({\mathbf{w}^*}^T \mathbf{\Sigma} \mathbf{w}^*) \, C^2\] where \(\mathbf{\mu}\) is the vector of expected (average) returns and \(C\) is the total investment.
+
+
+
+
+
+
+
+
+
+</div>
+
