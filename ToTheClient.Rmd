@@ -61,6 +61,7 @@ For the last task, in order to find the optimal weights we denote the vector of 
 
 ```{r stock, echo=FALSE}
 library(rvest)
+library(quantmod)
 url <- "https://en.wikipedia.org/wiki/List_of_S%26P_500_companies"
 SP500 <- url %>%
      xml2::read_html() %>%
@@ -69,9 +70,23 @@ SP500 <- url %>%
 SP500 <- SP500[[1]]
 Tix <- SP500$Symbol
 
+#randomly select 5 stocks
 set.seed(10)
-stock=sample(Tix, 5)
-stock
+stocks_tickers=sample(Tix, 5)
+stocks_tickers
 
+#time span for last 3 years
+three_year_ago <- seq(as.Date("2020-04-01"), length = 2, by = "-3 year")[2]
+getSymbols(stocks_tickers, from = three_year_ago, to = as.Date("2020-04-01"))
+
+
+stock1<- na.omit(ClCl(get(stocks_tickers[1])))
+stock2 <- na.omit(ClCl(get(stocks_tickers[2])))
+stock3<- na.omit(ClCl(get(stocks_tickers[3])))
+stock4 <- na.omit(ClCl(get(stocks_tickers[4])))
+stock5<- na.omit(ClCl(get(stocks_tickers[5])))
+
+sigma_stocks <- var(cbind(stock1, stock2,stock3,stock4,stock5))
+sigma_stocks
 ```
 
