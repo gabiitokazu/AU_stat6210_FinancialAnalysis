@@ -72,21 +72,35 @@ Tix <- SP500$Symbol
 
 #randomly select 5 stocks
 set.seed(10)
-stocks_tickers=sample(Tix, 5)
-stocks_tickers
+s=sample(Tix, 5)
+s
 
 #time span for last 3 years
 three_year_ago <- seq(as.Date("2020-04-01"), length = 2, by = "-3 year")[2]
-getSymbols(stocks_tickers, from = three_year_ago, to = as.Date("2020-04-01"))
+getSymbols(s, from = three_year_ago, to = as.Date("2020-04-01"))
 
+# gives the change in closing price
+#For example, "AAPL" company has change in closing price( clcl) as given below
+#clcl= ((AAPL.Close at t+1 )-(AAPL.Close t))/(AAPL.Close at  t)
 
-stock1<- na.omit(ClCl(get(stocks_tickers[1])))
-stock2 <- na.omit(ClCl(get(stocks_tickers[2])))
-stock3<- na.omit(ClCl(get(stocks_tickers[3])))
-stock4 <- na.omit(ClCl(get(stocks_tickers[4])))
-stock5<- na.omit(ClCl(get(stocks_tickers[5])))
+stock1<- na.omit(ClCl(get(s[1])))
+stock2 <- na.omit(ClCl(get(s[2])))
+stock3<- na.omit(ClCl(get(s[3])))
+stock4 <- na.omit(ClCl(get(s[4])))
+stock5<- na.omit(ClCl(get(s[5])))
 
+#varaince of stock
 sigma_stocks <- var(cbind(stock1, stock2,stock3,stock4,stock5))
-sigma_stocks
-```
+colnames(sigma_stocks)=c("stock1","stock2","stock3","stock4","stock5")
 
+#diagonal elements of stock varaince
+a=diag(sigma_stocks)
+#first 3 minimum values
+b=sort(a)[1:3]
+#giving the corresponding stock
+stock_1=which(a==b[1], arr.ind=TRUE)
+stock_2=which(a==b[2], arr.ind=TRUE)
+stock_3=which(a==b[3], arr.ind=TRUE)
+
+```
+here, stock `r stock_1`, stock`r stock_2` and stock`r stock_3` has smallest variance of change in  closing price.
