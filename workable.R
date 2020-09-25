@@ -114,3 +114,25 @@ rm(df, i)
 rm(best.stocks, best.stocks_names)
 rm(var.stocks_all, var.stocks_ordered)
 rm(ticker_sp500, SP500_symbol, sp500, stocks_all)
+
+
+
+
+
+
+#_____________________jianfeng
+
+library(quantmod)
+library(rvest)
+
+# symbols of all S&P500 stocks
+sp500 <- read_html("https://en.wikipedia.org/wiki/List_of_S%26P_500_companies")
+sp500 %>%
+     html_nodes(".text") %>%
+     html_text() -> ticker_sp500
+SP500_symbol <- ticker_sp500[(1:499)*2+1]
+SP500_symbol[SP500_symbol == "BRK.B"] <- "BRK-B"
+SP500_symbol[SP500_symbol == "BF.B"] <- "BF-B"
+# example 5 companies of the S&P500
+stocks_considered <- c("FB", "GOOGL", "AMZN", "AAPL", "MSFT")
+
