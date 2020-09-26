@@ -134,5 +134,28 @@ SP500_symbol <- ticker_sp500[(1:499)*2+1]
 SP500_symbol[SP500_symbol == "BRK.B"] <- "BRK-B"
 SP500_symbol[SP500_symbol == "BF.B"] <- "BF-B"
 # example 5 companies of the S&P500
-stocks_considered <- c("FB", "GOOGL", "AMZN", "AAPL", "MSFT")
+stocks_considered <- c("MMM", "ALL", "MO", "GOOG", "BIO")
 
+library(quantmod)
+three_year_ago <- seq(as.Date("2020-04-01"), length = 2, by = "-3 year")[2]
+stocks_tickers <- c("BIO", "GOOG","MO")
+getSymbols(stocks_tickers, from = three_year_ago, to = as.Date("2020-04-01"))
+
+BIO <- na.omit(ClCl(get(stocks_tickers[1])))
+GOOG <- na.omit(ClCl(get(stocks_tickers[2])))
+MO<-na.omit(ClCl(get(stocks_tickers[3])))
+
+#cbind data
+datacbind <- cbind(BIO, GOOG, MO)
+
+#trans to matrix
+Matrix<-data.matrix(as.data.frame(datacbind))
+
+#compute sigma and mu
+Sigma <- var(Matrix)
+mu <- c(mean(BIO),mean(GOOG),mean(MO))
+sigma_inv<-solve(Sigma)
+vectorp<-c(1,1,1)
+vectorpT<-t(vectorp)
+
+weight<-c(sigma_inv%*%vectorp)/vectorpT%*%sigma_inv%*%vectorp

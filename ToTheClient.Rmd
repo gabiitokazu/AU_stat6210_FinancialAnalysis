@@ -104,3 +104,5 @@ stock_3=which(a==b[3], arr.ind=TRUE)
 
 ```
 here, stock `r stock_1`, stock`r stock_2` and stock`r stock_3` has smallest variance of change in  closing price.
+
+
