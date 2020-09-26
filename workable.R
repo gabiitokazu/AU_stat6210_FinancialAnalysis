@@ -148,14 +148,17 @@ MO<-na.omit(ClCl(get(stocks_tickers[3])))
 #cbind data
 datacbind <- cbind(BIO, GOOG, MO)
 
-#trans to matrix
-Matrix<-data.matrix(as.data.frame(datacbind))
-
 #compute sigma and mu
-Sigma <- var(Matrix)
+sigma<-var(datacbind)
 mu <- c(mean(BIO),mean(GOOG),mean(MO))
-sigma_inv<-solve(Sigma)
+sigma_inv<-solve(sigma)
 vectorp<-c(1,1,1)
 vectorpT<-t(vectorp)
-
+#weight formula
 weight<-c(sigma_inv%*%vectorp)/vectorpT%*%sigma_inv%*%vectorp
+#return formula
+C<-1000000
+weightT<-t(weight)
+return<-(weightT%*%mu)*C
+#risk formula
+risk<-(weightT%*%sigma%*%weight)*C*C
