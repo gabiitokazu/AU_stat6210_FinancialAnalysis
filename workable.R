@@ -1,31 +1,83 @@
-#to get data
-
+#stock3
+rm(list =ls())
 library(rvest)
 library(quantmod)
-
-
 url <- "https://en.wikipedia.org/wiki/List_of_S%26P_500_companies"
 SP500 <- url %>%
-     xml2::read_html() %>%
-     html_nodes(xpath='//*[@id="mw-content-text"]/div/table[1]') %>%
-     html_table()
+        xml2::read_html() %>%
+        html_nodes(xpath='//*[@id="mw-content-text"]/div/table[1]') %>%
+        html_table()
 SP500 <- SP500[[1]]
 Tix <- SP500$Symbol
 
+#randomly select 5 stocks
 set.seed(10)
-stocks_tickers=sample(Tix, 5)
-stocks_tickers
+s=sample(Tix, 5)
+s
 
+#time span for last 3 years
 three_year_ago <- seq(as.Date("2020-04-01"), length = 2, by = "-3 year")[2]
-getSymbols(stocks_tickers, from = three_year_ago, to = as.Date("2020-04-01"))
+getSymbols(s, from = three_year_ago, to = as.Date("2020-04-01"))
 
-stock1<- na.omit(ClCl(get(stocks_tickers[1])))   #what does this do? I can't run on my machine. What is the ClCl() function?
-stock2 <- na.omit(ClCl(get(stocks_tickers[2])))
-sigma_stocks <- var(cbind(stock1, stock2))
+# gives the change in closing price
+#For example, "AAPL" company has change in closing price( clcl) as given below
+#clcl= ((AAPL.Close at t+1 )-(AAPL.Close t))/(AAPL.Close at  t)
+
+# Compute returns
+WRK<- na.omit(ClCl(get(s[1])))
+DRI <- na.omit(ClCl(get(s[2])))
+MSCI<- na.omit(ClCl(get(s[3])))
+PBCT <- na.omit(ClCl(get(s[4])))
+UAL<- na.omit(ClCl(get(s[5])))
+
+sigma <- cov(cbind(WRK,DRI,MSCI,PBCT,UAL))
+
+#giving the corresponding stock
+stock_1=which(diag(sigma)==sort(diag(sigma))[1:3][1], arr.ind=TRUE)
+stock_2=which(diag(sigma)==sort(diag(sigma))[1:3][2], arr.ind=TRUE)
+stock_3=which(diag(sigma)==sort(diag(sigma))[1:3][3], arr.ind=TRUE)
+
+# Estimation of mu and Sigma
+sigma_stocks <- cov(cbind(PBCT,MSCI,WRK))
+
+colnames(sigma_stocks)=c("PBCT","MSCI","WRK")
+mu <- c(mean(PBCT), mean(MSCI),mean(WRK))
 
 
-#clcl()function is for daily return
+# Compute omega^*
+p<-c(1,1,1)
+num <-solve(sigma_stocks)%*%p
+den=t(p) %*% solve(sigma_stocks)%*%p
+omega_star <-1/den[1] * num
+omega_star
 
+
+# Compute mu^*
+C=1000000
+mu_star <-t(omega_star)* mu*C
+
+# Compute sigma^*
+sigma_star=t(omega_star)%*%sigma_stocks%*%omega_star*C^2
+
+
+# Compute investment expected value and variance
+mu_investment <- omega_star[1]*mu[1] + omega_star[2]*mu[2]+omega_star[3]*mu[3]
+
+#check
+var_investment <- omega_star[1]^2*sigma_stocks[1,1] + omega_star[2]^2*sigma_stocks[2,2] +
+        omega_star[3]^2*sigma_stocks[3,3]+
+        2*omega_star[1]*omega_star[2]*sigma_stocks[1,2]+
+        2*omega_star[2]*omega_star[3]*sigma_stocks[2,3]+
+        2*omega_star[3]*omega_star[1]*sigma_stocks[3,1]
+
+investment_summary <- matrix(NA, 2, 4)
+dimnames(investment_summary)[[1]] <- c("Expected value", "Variance")
+
+dimnames(investment_summary)[[2]] <- c("PBCT", "MSCI","WRK", "Investment")
+
+investment_summary[1, ] <- c(mu, mu_investment)
+investment_summary[2, ] <- c(diag(sigma_stocks), var_investment)
+knitr::kable(investment_summary)
 
 
 
