@@ -166,6 +166,69 @@ risk<-(weightT%*%sigma%*%weight)*C*C
 
 #----------------------------------------
 #this is  for boss
+#one stock
+##BIO
+sigma_bio<-var(BIO)
+vector0<-1
+mu_bio<-mean(BIO)
+sigma_bio_inv<-solve(sigma_bio)
+vector0T<-t(vector0)
+###weight
+weight_bio<-as.vector(sigma_bio_inv%*%vector0)/as.vector(vector0T%*%sigma_bio_inv%*%vector0)
+###expected return and risk
+weight_bioT<-t(weight_bio)
+return_bio<-(weight_bioT%*%mu_bio)*C
+risk_bio<-(weight_bioT%*%sigma_bio%*%weight_bio)*C*C
+
+#GOOG
+sigma_GOOG<-var(GOOG)
+mu_GOOG<-mean(GOOG)
+sigma_GOOG_inv<-solve(sigma_GOOG)
+###weight
+weight_GOOG<-as.vector(sigma_GOOG_inv%*%vector0)/as.vector(vector0T%*%sigma_GOOG_inv%*%vector0)
+###expected return and risk
+weight_GOOGT<-t(weight_GOOG)
+return_GOOG<-(weight_GOOG%*%mu_GOOG)*C
+risk_GOOG<-(weight_GOOGT%*%sigma_GOOG%*%weight_GOOG)*C*C
+
+
+#MO
+sigma_MO<-var(MO)
+mu_MO<-mean(MO)
+sigma_MO_inv<-solve(sigma_MO)
+###weight
+weight_MO<-as.vector(sigma_MO_inv%*%vector0)/as.vector(vector0T%*%sigma_MO_inv%*%vector0)
+###expected return and risk
+weight_MOT<-t(weight_MO)
+return_MO<-(weight_MO%*%mu_MO)*C
+risk_MO<-(weight_MOT%*%sigma_MO%*%weight_MO)*C*C
+
+
+#ALL
+sigma_ALL<-var(ALL)
+mu_ALL<-mean(ALL)
+sigma_ALL_inv<-solve(sigma_ALL)
+###weight
+weight_ALL<-as.vector(sigma_ALL_inv%*%vector0)/as.vector(vector0T%*%sigma_ALL_inv%*%vector0)
+###expected return and risk
+weight_ALLT<-t(weight_ALL)
+return_ALL<-(weight_ALL%*%mu_ALL)*C
+risk_ALL<-(weight_ALLT%*%sigma_ALL%*%weight_ALL)*C*C
+
+
+#MMM
+sigma_MMM<-var(MMM)
+mu_MMM<-mean(MMM)
+sigma_MMM_inv<-solve(sigma_MMM)
+###weight
+weight_MMM<-as.vector(sigma_MMM_inv%*%vector0)/as.vector(vector0T%*%sigma_MMM_inv%*%vector0)
+###expected return and risk
+weight_MMMT<-t(weight_MMM)
+return_MMM<-(weight_MMM%*%mu_MMM)*C
+risk_MMM<-(weight_MMMT%*%sigma_MMM%*%weight_MMM)*C*C
+
+
+     
 #two stocks
 ##BIO with GOOG
 cbind1<-cbind(BIO,GOOG)
@@ -175,7 +238,7 @@ mu1<-c(mean(BIO),mean(GOOG))
 sigma1_inv<-solve(sigma1)
 vector1T<-t(vector1)
 ###weight
-weight1<-c(sigma1_inv%*%vector1)/vector1T%*%sigma1_inv%*%vector1
+weight1<-as.vector(sigma1_inv%*%vector1)/as.vector(vector1T%*%sigma1_inv%*%vector1)
 ####return and risk
 weight1T<-t(weight1)
 return1<-(weight1T%*%mu1)*C
@@ -188,7 +251,7 @@ sigma2<-var(cbind2)
 mu2<-c(mean(BIO),mean(MO))
 sigma2_inv<-solve(sigma2)
 ###weight
-weight2<-c(sigma2_inv%*%vector1)/vector1T%*%sigma2_inv%*%vector1
+weight2<-as.vector(sigma2_inv%*%vector1)/as.vector(vector1T%*%sigma2_inv%*%vector1)
 ###return and risk
 weight2T<-t(weight2)
 return2<-(weight2T%*%mu2)*C
@@ -201,7 +264,7 @@ sigma3<-var(cbind3)
 mu3<-c(mean(BIO),mean(ALL))
 sigma3_inv<-solve(sigma3)
 ###weight
-weight3<-c(sigma3_inv%*%vector1)/vector1T%*%sigma3_inv%*%vector1
+weight3<-as.vector(sigma3_inv%*%vector1)/as.vector(vector1T%*%sigma3_inv%*%vector1)
 ####return and risk
 weight3T<-t(weight3)
 return3<-(weight3T%*%mu3)*C
@@ -214,7 +277,7 @@ sigma4<-var(cbind4)
 mu4<-c(mean(BIO),mean(MMM))
 sigma4_inv<-solve(sigma4)
 ####weight
-weight4<-c(sigma4_inv%*%vector1)/vector1T%*%sigma4_inv%*%vector1
+weight4<-as.vector(sigma4_inv%*%vector1)/as.vector(vector1T%*%sigma4_inv%*%vector1)
 ####return and risk
 weight4T<-t(weight4)
 return4<-(weight4T%*%mu4)*C
@@ -227,7 +290,7 @@ sigma5<-var(cbind5)
 mu5<-c(mean(GOOG),mean(MO))
 sigma5_inv<-solve(sigma5)
 ###weight
-weight5<-c(sigma5_inv%*%vector1)/vector1T%*%sigma5_inv%*%vector1
+weight5<-as.vector(sigma5_inv%*%vector1)/as.vector(vector1T%*%sigma5_inv%*%vector1)
 ###return and risk
 weight5T<-t(weight5)
 return5<-(weight5T%*%mu5)*C
@@ -239,7 +302,7 @@ sigma6<-var(cbind6)
 mu6<-c(mean(GOOG),mean(ALL))
 sigma6_inv<-solve(sigma6)
 ###weight
-weight6<-c(sigma6_inv%*%vector1)/vector1T%*%sigma6_inv%*%vector1
+weight6<-as.vector(sigma6_inv%*%vector1)/as.vector(vector1T%*%sigma6_inv%*%vector1)
 ###return and risk
 weight6T<-t(weight6)
 return6<-(weight6T%*%mu6)*C
@@ -252,7 +315,7 @@ sigma7<-var(cbind7)
 mu7<-c(mean(GOOG),mean(MMM))
 sigma7_inv<-solve(sigma7)
 ###weight
-weight7<-c(sigma7_inv%*%vector1)/vector1T%*%sigma7_inv%*%vector1
+weight7<-as.vector(sigma7_inv%*%vector1)/as.vector(vector1T%*%sigma7_inv%*%vector1)
 ###return and risk
 weight7T<-t(weight7)
 return7<-(weight7T%*%mu7)*C
@@ -264,7 +327,7 @@ sigma8<-var(cbind8)
 mu8<-c(mean(MO),mean(ALL))
 sigma8_inv<-solve(sigma8)
 ###weight
-weight8<-c(sigma8_inv%*%vector1)/vector1T%*%sigma8_inv%*%vector1
+weight8<-as.vector(sigma8_inv%*%vector1)/as.vector(vector1T%*%sigma8_inv%*%vector1)
 ###return and risk
 weight8T<-t(weight8)
 return8<-(weight8T%*%mu8)*C
@@ -276,12 +339,11 @@ sigma9<-var(cbind9)
 mu9<-c(mean(MO),mean(MMM))
 sigma9_inv<-solve(sigma9)
 ###weight
-weight9<-c(sigma9_inv%*%vector1)/vector1T%*%sigma9_inv%*%vector1
+weight9<-as.vector(sigma9_inv%*%vector1)/as.vector(vector1T%*%sigma9_inv%*%vector1)
 ###return and risk
 weight9T<-t(weight9)
 return9<-(weight9T%*%mu9)*C
 risk9<-(weight9T%*%sigma9%*%weight9)*C*C
-
 
 
 ##ALL with MMM
@@ -290,10 +352,11 @@ sigma10<-var(cbind10)
 mu10<-c(mean(ALL),mean(MMM))
 sigma10_inv<-solve(sigma10)
 ###weight
-weight10<-c(sigma10_inv%*%vector1)/vector1T%*%sigma10_inv%*%vector1
+weight10<-as.vector(sigma10_inv%*%vector1)/as.vector(vector1T%*%sigma10_inv%*%vector1)
 ###return and risk
 weight10T<-t(weight10)
 return10<-(weight10T%*%mu10)*C
 risk10<-(weight10T%*%sigma10%*%weight10)*C*C
 
 #three stocks
+
