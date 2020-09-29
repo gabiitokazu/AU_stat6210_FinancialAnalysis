@@ -359,4 +359,139 @@ return10<-(weight10T%*%mu10)*C
 risk10<-(weight10T%*%sigma10%*%weight10)*C*C
 
 #three stocks
+##MMM,ALL and MO
+cbind11<-cbind(MMM,ALL,MO)
+sigma11<-var(cbind11)
+mu11 <- c(mean(MMM),mean(ALL),mean(MO))
+sigma_inv11<-solve(sigma11)
+###weight formula
+weight11<-as.vector(sigma_inv11%*%vectorp)/as.vector(vectorpT%*%sigma_inv11%*%vectorp)
+###return formula
+weight11T<-t(weight11)
+return11<-(weight11T%*%mu11)*C
+###risk formula
+risk11<-(weight11T%*%sigma11%*%weight11)*C*C
+
+
+##MMM,ALL and GOOG
+cbind12<-cbind(MMM,ALL,GOOG)
+sigma12<-var(cbind12)
+mu12 <- c(mean(MMM),mean(ALL),mean(GOOG))
+sigma_inv12<-solve(sigma12)
+###weight formula
+weight12<-as.vector(sigma_inv12%*%vectorp)/as.vector(vectorpT%*%sigma_inv12%*%vectorp)
+###return formula
+weight12T<-t(weight12)
+return12<-(weight12T%*%mu12)*C
+###risk formula
+risk12<-(weight12T%*%sigma12%*%weight12)*C*C
+
+
+##MMM,ALL and BIO
+cbind13<-cbind(MMM,ALL,BIO)
+sigma13<-var(cbind13)
+mu13 <- c(mean(MMM),mean(ALL),mean(BIO))
+sigma_inv13<-solve(sigma13)
+###weight formula
+weight13<-as.vector(sigma_inv13%*%vectorp)/as.vector(vectorpT%*%sigma_inv13%*%vectorp)
+###return formula
+weight13T<-t(weight13)
+return13<-(weight13T%*%mu13)*C
+###risk formula
+risk13<-(weight13T%*%sigma13%*%weight13)*C*C
+
+
+##MMM,MO and GOOG
+cbind14<-cbind(MMM,MO,GOOG)
+sigma14<-var(cbind14)
+mu14 <- c(mean(MMM),mean(MO),mean(GOOG))
+sigma_inv14<-solve(sigma14)
+###weight formula
+weight14<-as.vector(sigma_inv14%*%vectorp)/as.vector(vectorpT%*%sigma_inv14%*%vectorp)
+###return formula
+weight14T<-t(weight14)
+return14<-(weight14T%*%mu14)*C
+###risk formula
+risk14<-(weight14T%*%sigma14%*%weight14)*C*C
+
+
+##MMM,MO and BIO
+cbind15<-cbind(MMM,MO,BIO)
+sigma15<-var(cbind15)
+mu15 <- c(mean(MMM),mean(MO),mean(BIO))
+sigma_inv15<-solve(sigma15)
+###weight formula
+weight15<-as.vector(sigma_inv15%*%vectorp)/as.vector(vectorpT%*%sigma_inv15%*%vectorp)
+###return formula
+weight15T<-t(weight15)
+return15<-(weight15T%*%mu15)*C
+###risk formula
+risk15<-(weight15T%*%sigma15%*%weight15)*C*C
+
+
+##MMM, GOOG and BIO
+cbind16<-cbind(MMM,GOOG,BIO)
+sigma16<-var(cbind16)
+mu16 <- c(mean(MMM),mean(GOOG),mean(BIO))
+sigma_inv16<-solve(sigma16)
+###weight formula
+weight16<-as.vector(sigma_inv16%*%vectorp)/as.vector(vectorpT%*%sigma_inv16%*%vectorp)
+###return formula
+weight16T<-t(weight16)
+return16<-(weight16T%*%mu16)*C
+###risk formula
+risk16<-(weight16T%*%sigma16%*%weight16)*C*C
+
+#ALL, MO and GOOG
+cbind17<-cbind(ALL,MO,GOOG)
+sigma17<-var(cbind17)
+mu17 <- c(mean(ALL),mean(MO),mean(GOOG))
+sigma_inv17<-solve(sigma17)
+###weight formula
+weight17<-as.vector(sigma_inv17%*%vectorp)/as.vector(vectorpT%*%sigma_inv17%*%vectorp)
+###return formula
+weight17T<-t(weight17)
+return17<-(weight17T%*%mu17)*C
+###risk formula
+risk17<-(weight17T%*%sigma17%*%weight17)*C*C
+
+#ALL, MO and BIO
+cbind18<-cbind(ALL,MO,BIO)
+sigma18<-var(cbind18)
+mu18 <- c(mean(ALL),mean(MO),mean(BIO))
+sigma_inv18<-solve(sigma18)
+###weight formula
+weight18<-as.vector(sigma_inv18%*%vectorp)/as.vector(vectorpT%*%sigma_inv18%*%vectorp)
+###return formula
+weight18T<-t(weight18)
+return18<-(weight18T%*%mu18)*C
+###risk formula
+risk18<-(weight18T%*%sigma18%*%weight18)*C*C
+
+#ALL, GOOG and BIO
+cbind19<-cbind(ALL,GOOG,BIO)
+sigma19<-var(cbind19)
+mu19 <- c(mean(ALL),mean(GOOG),mean(BIO))
+sigma_inv19<-solve(sigma19)
+###weight formula
+weight19<-as.vector(sigma_inv19%*%vectorp)/as.vector(vectorpT%*%sigma_inv19%*%vectorp)
+###return formula
+weight19T<-t(weight19)
+return19<-(weight19T%*%mu19)*C
+###risk formula
+risk19<-(weight19T%*%sigma19%*%weight19)*C*C
+
+#MO, GOOG and BIO
+cbind20<-cbind(MO,GOOG,BIO)
+sigma20<-var(cbind20)
+mu20 <- c(mean(MO),mean(GOOG),mean(BIO))
+sigma_inv20<-solve(sigma20)
+###weight formula
+weight20<-as.vector(sigma_inv20%*%vectorp)/as.vector(vectorpT%*%sigma_inv20%*%vectorp)
+###return formula
+weight20T<-t(weight20)
+return20<-(weight20T%*%mu20)*C
+###risk formula
+risk20<-(weight20T%*%sigma20%*%weight20)*C*C
+
 
