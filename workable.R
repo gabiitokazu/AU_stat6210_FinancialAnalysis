@@ -241,7 +241,7 @@ rm(price, stock, var.stock, i)
 
 colnames(var.stocks_all) = c("stock","variance")
 
-best.stocks <- var.stocks_all[order(as.double(var.stocks_all$variance)),][1:5, ] # order all stocks from low to high and get only the first 3 rows out of it
+best.stocks <- var.stocks_all[order(as.double(var.stocks_all$variance)),][1:5, ] # order all stocks from low to high and get only the first 5 rows out of it
 best.stocks_names <- best.stocks[[1]] # list with just the names
 best.stocks_names <- as.data.frame(t(best.stocks_names))
 
