@@ -32,6 +32,8 @@ UAL<- na.omit(ClCl(get(s[5])))
 
 sigma <- cov(cbind(WRK,DRI,MSCI,PBCT,UAL))
 
+
+# 1. Selecting 3 stocks from the given 5 stocks.
 #giving the corresponding stock
 stock_1=which(diag(sigma)==sort(diag(sigma))[1:3][1], arr.ind=TRUE)
 stock_2=which(diag(sigma)==sort(diag(sigma))[1:3][2], arr.ind=TRUE)
@@ -78,6 +80,100 @@ dimnames(investment_summary)[[2]] <- c("PBCT", "MSCI","WRK", "Investment")
 investment_summary[1, ] <- c(mu, mu_investment)
 investment_summary[2, ] <- c(diag(sigma_stocks), var_investment)
 knitr::kable(investment_summary)
+
+plot(investment_summary[c(2,4,6)],investment_summary[c(1,3,5)],
+     xlab = "Risk",ylab = "Expected Outcome")
+points(investment_summary[7], investment_summary[8], type = "p",col="red")
+
+# for stock=2
+# Estimation of mu_1 and Sigma
+sigma_stocks1 <- cov(cbind(PBCT,MSCI))
+
+colnames(sigma_stocks1)=c("PBCT","MSCI")
+mu_1 <- c(mean(PBCT), mean(MSCI))
+
+
+# Compute omega^*
+p1<-c(1,1)
+num <-solve(sigma_stocks1)%*%p1
+den=t(p1) %*% solve(sigma_stocks1)%*%p1
+omega_star <-1/den[1] * num
+omega_star
+
+
+# Compute mu_1^*
+mu_1_star <-t(omega_star)* mu_1*C
+
+# Compute sigma^*
+sigma_star=t(omega_star)%*%sigma_stocks1%*%omega_star*C^2
+
+
+# Compute investment expected value and variance
+mu_1_investment <- omega_star[1]*mu_1[1] + omega_star[2]*mu_1[2]
+
+var_investment <- omega_star[1]^2*sigma_stocks1[1,1] + omega_star[2]^2*sigma_stocks1[2,2] + 
+        2*omega_star[1]*omega_star[2]*sigma_stocks1[1,2]
+
+investment_summary1 <- matrix(NA, 2, 3)
+dimnames(investment_summary1)[[1]] <- c("Expected value", "Variance")
+
+dimnames(investment_summary1)[[2]] <- c("PBCT", "MSCI", "Investment")
+
+investment_summary1[1, ] <- c(mu_1, mu_1_investment)
+investment_summary1[2, ] <- c(diag(sigma_stocks1), var_investment)
+knitr::kable(investment_summary1)
+
+plot(investment_summary1[c(2,4)],investment_summary1[c(1,3)],
+     xlab = "Risk",ylab = "Expected Outcome")
+points(investment_summary1[5], investment_summary1[6], type = "p",col="red")
+
+# stock1
+
+
+
+
+# Estimation of mu2 and Sigma
+sigma_stocks2 <- cov(cbind(WRK))
+colnames(sigma_stocks2)=c("WRK")
+
+mu2 <- c(mean(WRK))
+
+
+# Compute omega^*
+p2<-c(1)
+num <-solve(sigma_stocks2)%*%p2
+den=t(p2) %*% solve(sigma_stocks2)%*%p2
+omega_star <-1/den[1] * num
+omega_star
+
+
+# Compute mu2^*
+C=1000000
+mu2_star <-t(omega_star)* mu2*C
+
+# Compute sigma^*
+sigma_star=t(omega_star)%*%sigma_stocks2%*%omega_star*C^2
+
+
+# Compute investment expected value and variance
+mu2_investment <- omega_star[1]*mu2[1]
+
+var_investment <- omega_star[1]^2*sigma_stocks2[1,1]
+
+
+investment_summary2 <- matrix(NA, 2, 2)
+dimnames(investment_summary2)[[1]] <- c("Expected value", "Variance")
+
+dimnames(investment_summary2)[[2]] <- c("WRK", "Investment")
+
+investment_summary2[1, ] <- c(mu2, mu2_investment)
+investment_summary2[2, ] <- c(diag(sigma_stocks2), var_investment)
+knitr::kable(investment_summary2)
+
+plot(investment_summary2[c(2)],investment_summary2[c(1)],
+     xlab = "Risk",ylab = "Expected Outcome")
+points(investment_summary2[3], investment_summary2[4], type = "p",col="red")
+
 
 
 
