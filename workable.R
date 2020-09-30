@@ -416,6 +416,9 @@ cbind11<-cbind(MMM,ALL,MO)
 sigma11<-var(cbind11)
 mu11 <- c(mean(MMM),mean(ALL),mean(MO))
 sigma_inv11<-solve(sigma11)
+vectorp<-c(1,1,1)
+vectorpT<-t(vectorp)
+C<-1000000
 ###weight formula
 weight11<-as.vector(sigma_inv11%*%vectorp)/as.vector(vectorpT%*%sigma_inv11%*%vectorp)
 ###return formula
@@ -546,4 +549,34 @@ return20<-(weight20T%*%mu20)*C
 ###risk formula
 risk20<-(weight20T%*%sigma20%*%weight20)*C*C
 
+
+
+
+# Matrix for portfolio size is 1
+summary1<- matrix(NA,2,5)
+dimnames(summary1)[[1]]<-c("expected return","risk")
+dimnames(summary1)[[2]]<-c("BIO","GOOG","MO","ALL","MMM")
+summary1[1,]<-c(return_bio,return_GOOG,return_MO,return_ALL,return_MMM)
+summary1[2,]<-c(risk_bio,risk_GOOG,risk_MO,risk_ALL,risk_MMM)
+knitr::kable(summary1)
+# Matrix for portfolio size is 2
+summary2<- matrix(NA,3,10)
+dimnames(summary2)[[1]]<-c("weight","expected return","risk")
+dimnames(summary2)[[2]]<-c("BIO&GOOG","BIO&MO","BIO&ALL","BIO&MMM","GOOG&MO","GOOG&ALL","GOOG&MMM","MO&ALL","MO&MMM","ALL&MMM")
+k<-c(weight1,weight2,weight3,weight4,weight5,weight6,weight7,weight8,weight9,weight10)
+summary2[2,]<-c(return1,return2,return3,return4,return5,return6,return7,return8,return9,return10)
+summary2[3,]<-c(risk1,risk2,risk3,risk4,risk5,risk6,risk7,risk8,risk9,risk10)
+knitr::kable(summary1)
+
+# Matrix for portfolio size is 3
+summary3<-matrix(NA,2,10)
+dimnames(summary3)[[1]]<-c("expected return","risk")
+dimnames(summary3)[[2]]<-c("MMM&ALL&MO","MMM&ALL&GOOG","MMM&ALL&BIO","MMM&MO&GOOG","MMM&&MO&BIO","MMM&GOOG&BIO","ALL&MO&GOOG","ALL&MO&BIO","ALL&GOOG&BIO","MO&GOOG&BIO")
+summary3[1,]<-c(return11,return12,return13,return14,return15,return16,return17,return18,return19,return20)
+summary3[2,]<-c(risk11,risk12,risk13,risk14,risk15,risk16,risk17,risk18,risk19,risk20)
+knitr::kable(summary3)
+
+#Plot
+allRisk<-c(risk_bio,risk_GOOG,risk_MO,risk_ALL,risk_MMM,risk1,risk2,risk3,risk4,risk5,risk6,risk7,risk8,risk9,risk10,risk11,risk12,risk13,risk14,risk15,risk16,risk17,risk18,risk19,risk20)
+allreturn<-(return_bio,return_GOOG,return_MO,return_ALL,return_MMM,return1,return2,return3,return4,return5,return6,return7,return8,return9,return10,return11,return12,return13,return14,return15,return16,return17,return18,return19,return20)
 
