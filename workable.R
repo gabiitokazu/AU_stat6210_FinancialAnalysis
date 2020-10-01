@@ -1,4 +1,4 @@
-#stock3
+#bijoychandra
 rm(list =ls())
 library(rvest)
 library(quantmod)
@@ -9,170 +9,137 @@ SP500 <- url %>%
         html_table()
 SP500 <- SP500[[1]]
 Tix <- SP500$Symbol
-
 #randomly select 5 stocks
 set.seed(10)
 s=sample(Tix, 5)
-s
-
 #time span for last 3 years
 three_year_ago <- seq(as.Date("2020-04-01"), length = 2, by = "-3 year")[2]
 getSymbols(s, from = three_year_ago, to = as.Date("2020-04-01"))
-
 # gives the change in closing price
 #For example, "AAPL" company has change in closing price( clcl) as given below
 #clcl= ((AAPL.Close at t+1 )-(AAPL.Close t))/(AAPL.Close at  t)
-
 # Compute returns
 WRK<- na.omit(ClCl(get(s[1])))
 DRI <- na.omit(ClCl(get(s[2])))
 MSCI<- na.omit(ClCl(get(s[3])))
 PBCT <- na.omit(ClCl(get(s[4])))
 UAL<- na.omit(ClCl(get(s[5])))
+final=matrix(NA,10, 7)
+colnames(final)=c(s,"Exp return","Risk")
+for (i in 1:10) {
+        stocks=cbind(WRK,DRI,MSCI,PBCT,UAL)
+        mat <- combn(1:5, 3)
+        aa=split(mat, rep(1:ncol(mat), each = nrow(mat)))
+        x=stocks[,aa[[i]]] 
+        # Estimation of mu and Sigma
+        sigma_stocks <- cov(x)
+        colnames(sigma_stocks)=c("Stock1","Stock2","Stock3")
+        mu <-sapply(x, mean)
+        # Compute omega^*
+        p<-c(1,1,1)
+        num <-solve(sigma_stocks)%*%p
+        den=t(p) %*% solve(sigma_stocks)%*%p
+        omega_star <-1/den[1] * num
+        # Compute mu^*
+        C=1e6
+        mu_star <-t(omega_star)* mu*C
+        # Compute sigma^*
+        sigma_star=t(omega_star)%*%sigma_stocks%*%omega_star*C^2
+        # Compute investment expected value and variance
+        mu_investment <- omega_star[1]*mu[1] + omega_star[2]*mu[2]+omega_star[3]*mu[3]
+        #check
+        var_investment <- omega_star[1]^2*sigma_stocks[1,1] + omega_star[2]^2*sigma_stocks[2,2] +
+                omega_star[3]^2*sigma_stocks[3,3]+
+                2*omega_star[1]*omega_star[2]*sigma_stocks[1,2]+
+                2*omega_star[2]*omega_star[3]*sigma_stocks[2,3]+
+                2*omega_star[3]*omega_star[1]*sigma_stocks[3,1]
+        stocks=cbind(WRK,DRI,MSCI,PBCT,UAL)
+        final[i,aa[[i]]]=c(t(omega_star))
+        final[i,6:7]=c(mu_investment,var_investment)
+}
+stock3=replace_na(final,0)
 
-sigma <- cov(cbind(WRK,DRI,MSCI,PBCT,UAL))
-
-
-# 1. Selecting 3 stocks from the given 5 stocks.
-#giving the corresponding stock
-stock_1=which(diag(sigma)==sort(diag(sigma))[1:3][1], arr.ind=TRUE)
-stock_2=which(diag(sigma)==sort(diag(sigma))[1:3][2], arr.ind=TRUE)
-stock_3=which(diag(sigma)==sort(diag(sigma))[1:3][3], arr.ind=TRUE)
-
-# Estimation of mu and Sigma
-sigma_stocks <- cov(cbind(PBCT,MSCI,WRK))
-
-colnames(sigma_stocks)=c("PBCT","MSCI","WRK")
-mu <- c(mean(PBCT), mean(MSCI),mean(WRK))
-
-
-# Compute omega^*
-p<-c(1,1,1)
-num <-solve(sigma_stocks)%*%p
-den=t(p) %*% solve(sigma_stocks)%*%p
-omega_star <-1/den[1] * num
-omega_star
-
-
-# Compute mu^*
-C=1000000
-mu_star <-t(omega_star)* mu*C
-
-# Compute sigma^*
-sigma_star=t(omega_star)%*%sigma_stocks%*%omega_star*C^2
-
-
-# Compute investment expected value and variance
-mu_investment <- omega_star[1]*mu[1] + omega_star[2]*mu[2]+omega_star[3]*mu[3]
-
-#check
-var_investment <- omega_star[1]^2*sigma_stocks[1,1] + omega_star[2]^2*sigma_stocks[2,2] +
-        omega_star[3]^2*sigma_stocks[3,3]+
-        2*omega_star[1]*omega_star[2]*sigma_stocks[1,2]+
-        2*omega_star[2]*omega_star[3]*sigma_stocks[2,3]+
-        2*omega_star[3]*omega_star[1]*sigma_stocks[3,1]
-
-investment_summary <- matrix(NA, 2, 4)
-dimnames(investment_summary)[[1]] <- c("Expected value", "Variance")
-
-dimnames(investment_summary)[[2]] <- c("PBCT", "MSCI","WRK", "Investment")
-
-investment_summary[1, ] <- c(mu, mu_investment)
-investment_summary[2, ] <- c(diag(sigma_stocks), var_investment)
-knitr::kable(investment_summary)
-
-plot(investment_summary[c(2,4,6)],investment_summary[c(1,3,5)],
-     xlab = "Risk",ylab = "Expected Outcome")
-points(investment_summary[7], investment_summary[8], type = "p",col="red")
-
-# for stock=2
-# Estimation of mu_1 and Sigma
-sigma_stocks1 <- cov(cbind(PBCT,MSCI))
-
-colnames(sigma_stocks1)=c("PBCT","MSCI")
-mu_1 <- c(mean(PBCT), mean(MSCI))
-
-
-# Compute omega^*
-p1<-c(1,1)
-num <-solve(sigma_stocks1)%*%p1
-den=t(p1) %*% solve(sigma_stocks1)%*%p1
-omega_star <-1/den[1] * num
-omega_star
+# Selecting stock2
+final1=matrix(NA,10, 7)
+colnames(final)=c(s,"Exp return","Risk")
+for (i in 1:10) {
+        stocks=cbind(WRK,DRI,MSCI,PBCT,UAL)
+        mat <- combn(1:5, 2)
+        aa=split(mat, rep(1:ncol(mat), each = nrow(mat)))
+        x=stocks[,aa[[i]]] 
+        # Estimation of mu and Sigma
+        sigma_stocks <- cov(x)
+        colnames(sigma_stocks)=c("Stock1","Stock2")
+        mu <-sapply(x, mean)
+        # Compute omega^*
+        p<-c(1,1)
+        num <-solve(sigma_stocks)%*%p
+        den=t(p) %*% solve(sigma_stocks)%*%p
+        omega_star <-1/den[1] * num
+        # Compute mu^*
+        C=1e6
+        mu_star <-t(omega_star)* mu*C
+        # Compute sigma^*
+        sigma_star=t(omega_star)%*%sigma_stocks%*%omega_star*C^2
+        # Compute investment expected value and variance
+        mu_investment <- omega_star[1]*mu[1] + omega_star[2]*mu[2]
+        #check
+        var_investment <-omega_star[1]^2*sigma_stocks[1,1] + omega_star[2]^2*sigma_stocks[2,2] + 
+                2*omega_star[1]*omega_star[2]*sigma_stocks[1,2]
+        
+        stocks=cbind(WRK,DRI,MSCI,PBCT,UAL)
+        final1[i,aa[[i]]]=c(t(omega_star))
+        final1[i,6:7]=c(mu_investment,var_investment)
+}
+stock2=replace_na(final1,0)
 
 
-# Compute mu_1^*
-mu_1_star <-t(omega_star)* mu_1*C
+# select stock1
 
-# Compute sigma^*
-sigma_star=t(omega_star)%*%sigma_stocks1%*%omega_star*C^2
-
-
-# Compute investment expected value and variance
-mu_1_investment <- omega_star[1]*mu_1[1] + omega_star[2]*mu_1[2]
-
-var_investment <- omega_star[1]^2*sigma_stocks1[1,1] + omega_star[2]^2*sigma_stocks1[2,2] + 
-        2*omega_star[1]*omega_star[2]*sigma_stocks1[1,2]
-
-investment_summary1 <- matrix(NA, 2, 3)
-dimnames(investment_summary1)[[1]] <- c("Expected value", "Variance")
-
-dimnames(investment_summary1)[[2]] <- c("PBCT", "MSCI", "Investment")
-
-investment_summary1[1, ] <- c(mu_1, mu_1_investment)
-investment_summary1[2, ] <- c(diag(sigma_stocks1), var_investment)
-knitr::kable(investment_summary1)
-
-plot(investment_summary1[c(2,4)],investment_summary1[c(1,3)],
-     xlab = "Risk",ylab = "Expected Outcome")
-points(investment_summary1[5], investment_summary1[6], type = "p",col="red")
-
-# stock1
-
-
-
-
-# Estimation of mu2 and Sigma
-sigma_stocks2 <- cov(cbind(WRK))
-colnames(sigma_stocks2)=c("WRK")
-
-mu2 <- c(mean(WRK))
-
-
-# Compute omega^*
-p2<-c(1)
-num <-solve(sigma_stocks2)%*%p2
-den=t(p2) %*% solve(sigma_stocks2)%*%p2
-omega_star <-1/den[1] * num
-omega_star
+final2=matrix(NA,5, 7)
+colnames(final)=c(s,"Exp return","Risk")
+for (i in 1:5) {
+        stocks=cbind(WRK,DRI,MSCI,PBCT,UAL)
+        mat <- combn(1:5, 1)
+        aa=split(mat, rep(1:ncol(mat), each = nrow(mat)))
+        x=stocks[,aa[[i]]] 
+        # Estimation of mu and Sigma
+        sigma_stocks <- cov(x)
+        mu <-sapply(x, mean)
+        # Compute omega^*
+        p<-c(1)
+        num <-solve(sigma_stocks)%*%p
+        den=t(p) %*% solve(sigma_stocks)%*%p
+        omega_star <-1/den[1] * num
+        
+        # Compute mu^*
+        C=1e6
+        mu_star <-t(omega_star)* mu*C
+        # Compute sigma^*
+        sigma_star=t(omega_star)%*%sigma_stocks%*%omega_star*C^2
+        # Compute investment expected value and variance
+        
+        mu_investment <- omega_star[1]*mu[1]
+        #check
+        var_investment <- omega_star[1]^2*sigma_stocks[1,1] 
+        
+        stocks=cbind(WRK,DRI,MSCI,PBCT,UAL)
+        final2[i,aa[[i]]]=c(t(omega_star))
+        final2[i,6:7]=c(mu_investment,var_investment)
+}
+stock1=replace_na(final2,0)
+stock=rbind(stock3,stock2,stock1)
+min_risk=which.min(stock[,7])
+best=stock[min_risk,]
 
 
-# Compute mu2^*
-C=1000000
-mu2_star <-t(omega_star)* mu2*C
+plot(stock[-min_risk,7],stock[-min_risk,6],pch=1,type = "p",  col = 1, 
+     xlab = "Investment Daily Risk",
+     ylab = "Investment Daily Expected Return", main="Stock Portfolios")
+points(best[7], best[6],pch = 1, col = 10, type = "p")
 
-# Compute sigma^*
-sigma_star=t(omega_star)%*%sigma_stocks2%*%omega_star*C^2
-
-
-# Compute investment expected value and variance
-mu2_investment <- omega_star[1]*mu2[1]
-
-var_investment <- omega_star[1]^2*sigma_stocks2[1,1]
-
-
-investment_summary2 <- matrix(NA, 2, 2)
-dimnames(investment_summary2)[[1]] <- c("Expected value", "Variance")
-
-dimnames(investment_summary2)[[2]] <- c("WRK", "Investment")
-
-investment_summary2[1, ] <- c(mu2, mu2_investment)
-investment_summary2[2, ] <- c(diag(sigma_stocks2), var_investment)
-knitr::kable(investment_summary2)
-
-plot(investment_summary2[c(2)],investment_summary2[c(1)],
-     xlab = "Risk",ylab = "Expected Outcome")
-points(investment_summary2[3], investment_summary2[4], type = "p",col="red")
+legend("topright", c("Possible portfolio", "Min-Variance Portfolio"), col = c(1,10),
+       lty = c(-2, -1), pch = c(1, 1))
 
 
 
