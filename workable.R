@@ -2,6 +2,7 @@
 rm(list =ls())
 library(rvest)
 library(quantmod)
+library(tidyverse)
 url <- "https://en.wikipedia.org/wiki/List_of_S%26P_500_companies"
 SP500 <- url %>%
         xml2::read_html() %>%
@@ -46,13 +47,13 @@ for (i in 1:10) {
         # Compute sigma^*
         sigma_star=t(omega_star)%*%sigma_stocks%*%omega_star*C^2
         # Compute investment expected value and variance
-        mu_investment <- omega_star[1]*mu[1] + omega_star[2]*mu[2]+omega_star[3]*mu[3]
+        mu_investment <- C*(omega_star[1]*mu[1] + omega_star[2]*mu[2]+omega_star[3]*mu[3])
         #check
-        var_investment <- omega_star[1]^2*sigma_stocks[1,1] + omega_star[2]^2*sigma_stocks[2,2] +
-                omega_star[3]^2*sigma_stocks[3,3]+
-                2*omega_star[1]*omega_star[2]*sigma_stocks[1,2]+
-                2*omega_star[2]*omega_star[3]*sigma_stocks[2,3]+
-                2*omega_star[3]*omega_star[1]*sigma_stocks[3,1]
+        var_investment <-C^2*( omega_star[1]^2*sigma_stocks[1,1] + omega_star[2]^2*sigma_stocks[2,2] +
+                                       omega_star[3]^2*sigma_stocks[3,3]+
+                                       2*omega_star[1]*omega_star[2]*sigma_stocks[1,2]+
+                                       2*omega_star[2]*omega_star[3]*sigma_stocks[2,3]+
+                                       2*omega_star[3]*omega_star[1]*sigma_stocks[3,1])
         stocks=cbind(WRK,DRI,MSCI,PBCT,UAL)
         final[i,aa[[i]]]=c(t(omega_star))
         final[i,6:7]=c(mu_investment,var_investment)
@@ -82,10 +83,10 @@ for (i in 1:10) {
         # Compute sigma^*
         sigma_star=t(omega_star)%*%sigma_stocks%*%omega_star*C^2
         # Compute investment expected value and variance
-        mu_investment <- omega_star[1]*mu[1] + omega_star[2]*mu[2]
+        mu_investment <- C*(omega_star[1]*mu[1] + omega_star[2]*mu[2])
         #check
-        var_investment <-omega_star[1]^2*sigma_stocks[1,1] + omega_star[2]^2*sigma_stocks[2,2] + 
-                2*omega_star[1]*omega_star[2]*sigma_stocks[1,2]
+        var_investment <-C^2*(omega_star[1]^2*sigma_stocks[1,1] + omega_star[2]^2*sigma_stocks[2,2] + 
+                                      2*omega_star[1]*omega_star[2]*sigma_stocks[1,2])
         
         stocks=cbind(WRK,DRI,MSCI,PBCT,UAL)
         final1[i,aa[[i]]]=c(t(omega_star))
@@ -119,9 +120,9 @@ for (i in 1:5) {
         sigma_star=t(omega_star)%*%sigma_stocks%*%omega_star*C^2
         # Compute investment expected value and variance
         
-        mu_investment <- omega_star[1]*mu[1]
+        mu_investment <- C*(omega_star[1]*mu[1])
         #check
-        var_investment <- omega_star[1]^2*sigma_stocks[1,1] 
+        var_investment <-C^2*( omega_star[1]^2*sigma_stocks[1,1] )
         
         stocks=cbind(WRK,DRI,MSCI,PBCT,UAL)
         final2[i,aa[[i]]]=c(t(omega_star))
@@ -131,7 +132,7 @@ stock1=replace_na(final2,0)
 stock=rbind(stock3,stock2,stock1)
 min_risk=which.min(stock[,7])
 best=stock[min_risk,]
-
+View(stock)
 
 plot(stock[-min_risk,7],stock[-min_risk,6],pch=1,type = "p",  col = 1, 
      xlab = "Investment Daily Risk",
@@ -140,7 +141,6 @@ points(best[7], best[6],pch = 1, col = 10, type = "p")
 
 legend("topright", c("Possible portfolio", "Min-Variance Portfolio"), col = c(1,10),
        lty = c(-2, -1), pch = c(1, 1))
-
 
 
 
