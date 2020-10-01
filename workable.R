@@ -139,7 +139,7 @@ plot(stock[-min_risk,7],stock[-min_risk,6],pch=1,type = "p",  col = 1,
      ylab = "Investment Daily Expected Return", main="Stock Portfolios")
 points(best[7], best[6],pch = 1, col = 10, type = "p")
 
-legend("topright", c("Possible portfolio", "Min-Variance Portfolio"), col = c(1,10),
+legend(5.8e8,1500, c("Possible portfolio", "Min-Variance Portfolio"), col = c(1,10),
        lty = c(-2, -1), pch = c(1, 1))
 
 
