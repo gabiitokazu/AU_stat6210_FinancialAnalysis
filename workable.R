@@ -43,20 +43,12 @@ for (i in 1:10) {
         omega_star <-1/den[1] * num
         # Compute mu^*
         C=1e6
-        mu_star <-t(omega_star)* mu*C
+        mu_star <-t(omega_star)%*% mu*C
         # Compute sigma^*
         sigma_star=t(omega_star)%*%sigma_stocks%*%omega_star*C^2
-        # Compute investment expected value and variance
-        mu_investment <- C*(omega_star[1]*mu[1] + omega_star[2]*mu[2]+omega_star[3]*mu[3])
-        #check
-        var_investment <-C^2*( omega_star[1]^2*sigma_stocks[1,1] + omega_star[2]^2*sigma_stocks[2,2] +
-                                       omega_star[3]^2*sigma_stocks[3,3]+
-                                       2*omega_star[1]*omega_star[2]*sigma_stocks[1,2]+
-                                       2*omega_star[2]*omega_star[3]*sigma_stocks[2,3]+
-                                       2*omega_star[3]*omega_star[1]*sigma_stocks[3,1])
-        stocks=cbind(WRK,DRI,MSCI,PBCT,UAL)
+        
         final[i,aa[[i]]]=c(t(omega_star))
-        final[i,6:7]=c(mu_investment,var_investment)
+        final[i,6:7]=c(mu_star,sigma_star)
 }
 stock3=replace_na(final,0)
 
@@ -79,18 +71,12 @@ for (i in 1:10) {
         omega_star <-1/den[1] * num
         # Compute mu^*
         C=1e6
-        mu_star <-t(omega_star)* mu*C
+        mu_star <-t(omega_star)%*% mu*C
         # Compute sigma^*
         sigma_star=t(omega_star)%*%sigma_stocks%*%omega_star*C^2
-        # Compute investment expected value and variance
-        mu_investment <- C*(omega_star[1]*mu[1] + omega_star[2]*mu[2])
-        #check
-        var_investment <-C^2*(omega_star[1]^2*sigma_stocks[1,1] + omega_star[2]^2*sigma_stocks[2,2] + 
-                                      2*omega_star[1]*omega_star[2]*sigma_stocks[1,2])
         
-        stocks=cbind(WRK,DRI,MSCI,PBCT,UAL)
         final1[i,aa[[i]]]=c(t(omega_star))
-        final1[i,6:7]=c(mu_investment,var_investment)
+        final1[i,6:7]=c(mu_star,sigma_star)
 }
 stock2=replace_na(final1,0)
 
@@ -115,24 +101,18 @@ for (i in 1:5) {
         
         # Compute mu^*
         C=1e6
-        mu_star <-t(omega_star)* mu*C
+        mu_star <-t(omega_star)%*% mu*C
         # Compute sigma^*
         sigma_star=t(omega_star)%*%sigma_stocks%*%omega_star*C^2
-        # Compute investment expected value and variance
         
-        mu_investment <- C*(omega_star[1]*mu[1])
-        #check
-        var_investment <-C^2*( omega_star[1]^2*sigma_stocks[1,1] )
-        
-        stocks=cbind(WRK,DRI,MSCI,PBCT,UAL)
         final2[i,aa[[i]]]=c(t(omega_star))
-        final2[i,6:7]=c(mu_investment,var_investment)
+        final2[i,6:7]=c(mu_star,sigma_star)
 }
 stock1=replace_na(final2,0)
 stock=rbind(stock3,stock2,stock1)
 min_risk=which.min(stock[,7])
 best=stock[min_risk,]
-View(stock)
+
 
 plot(stock[-min_risk,7],stock[-min_risk,6],pch=1,type = "p",  col = 1, 
      xlab = "Investment Daily Risk",
