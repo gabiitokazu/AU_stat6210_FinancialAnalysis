@@ -212,7 +212,7 @@ kable(MinMax)
 
 ```
 
-The plot below gives a better visualization of the data, and one can also refer to the Appendix section for a detailed table with the weight, calculated Risk and Expected Return values. The red dot represents the best portfolio out of the 25 options generated, considering the constraints of the client. This portfolio presents a risk of `r best$Risk` and daily expected return of `r best$ExpReturn`. The weight for each stock is `r best$FTV` for *Fortive Corp. Stock*, `r best$ZBH` for *Zimmer Biomet Holdings Inc. Stock*, and `r best$CTXS` for *Citrix Systems Inc. Stock*. 
+The plot below gives a better visualization of the data, and one can also refer to the Appendix section for a detailed table with the weight, calculated Risk and Expected Return values. The red dot represents the best portfolio out of the 25 options generated, considering the constraints of the client. This portfolio presents a risk of `r  paste(format(round(best$Risk/ 1e6, 1), trim = TRUE), "millions")` and daily expected return of `r round(best$ExpReturn,2)`. The weight for each stock is `r round(best$FTV,2)` for *Fortive Corp. Stock*, `r round(best$ZBH,2)` for *Zimmer Biomet Holdings Inc. Stock*, and `r round(best$CTXS,2)` for *Citrix Systems Inc. Stock*.
 
 ```{r stock10, echo=FALSE, eval=TRUE, fig.align='center', fig.width=6.5, fig.height=4.5}
 
