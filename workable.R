@@ -1,10 +1,8 @@
 rm(list =ls())
 
-
 library(rvest)
 library(quantmod)
 library(tidyverse)
-library(gtools)
 
 url <- "https://en.wikipedia.org/wiki/List_of_S%26P_500_companies"
 SP500 <- url %>%
@@ -36,120 +34,75 @@ UAL <- na.omit(ClCl(get(stocks_names[5]))) # United Airlines
 stocks_considered <- cbind(WRK,DRI,MSCI,PBCT,UAL)
 colnames(stocks_considered) = c("WRK","DRI","MDCI","PBCT","UAL")
 
-# Creates common variables to all combination options
-# vectors p
-p1 <- c(1)
-p2 <- c(1,1)
-p3 <- c(1,1,1)
-# total investment
+# assign total investment to variable C
 C <- 1e6
 
-#-------------3 stocks options--------------------------------------------------
-#
-# generates combinations and separates them (3by3)
-comb3by3 <- combn(1:ncol(stocks_considered), 3) 
-temp <- split(comb3by3, rep(1:ncol(comb3by3), each = nrow(comb3by3)))
+# creates empty data.frame to be populated with the weights for each company
+# of the different sized portfolios (rows for each company-named column)
+# and respective Expected Return and Risk values.!
+stocks <- data.frame("WRK" = double(0),
+                     "DRI" = double(0),
+                     "MDCI" = double(0),
+                     "PBCT" = double(0),
+                     "UAL" = double(0),
+                     "Return" = double(0),
+                     "Risk" = double(0)
+)
 
-# creates empty matrix for all combinations of stocks (3by3)
-summary_3by3 <- matrix(nrow = ncol(comb3by3), ncol = (ncol(stocks_considered)+2))
-colnames(summary_3by3) = c(stocks_names,"ExpReturn","Risk")
+# creates empty vector p
+p <- c()
 
-# iterates for all combinations of stocks (3by3)
-for (i in 1:ncol(comb3by3)) {
-        x <- stocks_considered[,temp[[i]]] 
-        sigma <- cov(x)
-        mu <-sapply(x, mean)
-        # Computes weight
-        weight_calc <- (solve(sigma)%*%p3)  / 
-                (as.numeric(t(p3) %*% solve(sigma) %*% p3))
-        # Compute return
-        return_calc <- t(weight_calc) %*% mu * C
-        # Compute risk
-        risk_calc <- t(weight_calc) %*% sigma %*% weight_calc * (C^2)
+
+for (i in 1:3){
+        # updates vector p
+        p <- append(p,1) 
+        #generates combinations (by3, by2, single)
+        comb <- combn(1:ncol(stocks_considered), i)
+        temp <- split(comb, rep(1:ncol(comb), each = nrow(comb)))
         
-        summary_3by3[i,temp[[i]]] = c(t(weight_calc))
-        summary_3by3[i,6:7] = c(return_calc,risk_calc)
+        # creates empty matrix for all combinations of stocks 
+        summary <- matrix(nrow = ncol(comb), ncol = (ncol(stocks_considered)+2))
+        colnames(summary) = c(stocks_names,"ExpReturn","Risk")
+        
+        # iterates for all combinations of stocks in each combination option
+        for (j in 1:ncol(comb)) {
+                # creates matrix based on the combinations in 'temp'
+                x <- stocks_considered[,temp[[j]]] 
+                # defines sigma and mu values
+                sigma <- cov(x)
+                mu <-sapply(x, mean)
+                # Computes weight
+                weight_calc <- (solve(sigma)%*%p)  / 
+                        (as.numeric(t(p) %*% solve(sigma) %*% p))
+                # Computes return
+                return_calc <- t(weight_calc) %*% mu * C
+                # Computes risk
+                risk_calc <- t(weight_calc) %*% sigma %*% weight_calc * (C^2)
+                
+                # assigns the calculated weights to the respective columns
+                summary[j,temp[[j]]] = c(t(weight_calc))
+                # assigns the calculates returns and risks to the respective columns
+                summary[j,6:7] = c(return_calc,risk_calc)
+        }
+        
+        # replaces NA values with 0 
+        summary <- replace_na(summary,0)
+        # adds current 'summary' to the 'stocks' data.frame
+        stocks <- rbind(stocks, summary)
 }
 
-summary_3by3 <- replace_na(summary_3by3,0)
 
+min_risk <- which.min(stocks[,7])
+best <- stocks[min_risk,]
 
-#-------------2 stocks options--------------------------------------------------
-#
-# generates combinations and separates them (2 by 2)
-comb2by2 <- combn(1:ncol(stocks_considered), 2) 
-temp <- split(comb2by2, rep(1:ncol(comb2by2), each = nrow(comb2by2)))
-
-# creates empty matrix for all combinations of stocks (2by2)
-summary_2by2 <- matrix(nrow = ncol(comb2by2), ncol = (ncol(stocks_considered)+2))
-colnames(summary_2by2) = c(stocks_names,"ExpReturn","Risk")
-
-# iterates for all combinations of stocks (2by2)
-for (i in 1:ncol(comb2by2)) {
-        x <- stocks_considered[,temp[[i]]] 
-        sigma <- cov(x)
-        mu <-sapply(x, mean)
-        # Computes weight
-        weight_calc <- (solve(sigma)%*%p2)  / 
-                (as.numeric(t(p2) %*% solve(sigma) %*% p2))
-        # Compute return
-        return_calc <- t(weight_calc) %*% mu * C
-        # Compute risk
-        risk_calc <- t(weight_calc) %*% sigma %*% weight_calc * (C^2)
-        
-        summary_2by2[i,temp[[i]]] = c(t(weight_calc))
-        summary_2by2[i,6:7] = c(return_calc,risk_calc)
-}
-
-summary_2by2 <- replace_na(summary_2by2,0)
-
-
-#-------------single stock options--------------------------------------------------
-#
-# generates combinations and separates them
-comb1by1 <- combn(1:ncol(stocks_considered), 1) 
-temp <- split(comb1by1, rep(1:ncol(comb1by1), each = nrow(comb1by1)))
-
-# creates empty matrix for all combinations of stocks (2by2)
-summary_1by1 <- matrix(nrow = ncol(comb1by1), ncol = (ncol(stocks_considered)+2))
-colnames(summary_1by1) = c(stocks_names,"ExpReturn","Risk")
-
-# iterates for all combinations of stocks (2by2)
-for (i in 1:ncol(comb1by1)) {
-        x <- stocks_considered[,temp[[i]]] 
-        sigma <- cov(x)
-        mu <-sapply(x, mean)
-        # Computes weight
-        weight_calc <- (solve(sigma)%*%p1)  / 
-                (as.numeric(t(p1) %*% solve(sigma) %*% p1))
-        # Compute return
-        return_calc <- t(weight_calc) %*% mu * C
-        # Compute risk
-        risk_calc <- t(weight_calc) %*% sigma %*% weight_calc * (C^2)
-        
-        summary_1by1[i,temp[[i]]] = c(t(weight_calc))
-        summary_1by1[i,6:7] = c(return_calc,risk_calc)
-}
-
-summary_1by1 <- replace_na(summary_1by1,0)
-
-
-stock=rbind(summary_3by3,summary_2by2,summary_1by1)
-min_risk=which.min(stock[,7])
-best=stock[min_risk,]
-
-
-plot(stock[-min_risk,7],stock[-min_risk,6],pch=1,type = "p",  col = 1, 
+# creates plot
+plot(stocks[-min_risk,7],stocks[-min_risk,6],pch=1,type = "p",  col = 1, 
      xlab = "Investment Daily Risk",
      ylab = "Investment Daily Expected Return", main="Stock Portfolios")
 points(best[7], best[6],pch = 1, col = 10, type = "p")
 
 legend(5.8e8,1500, c("Possible portfolio", "Min-Variance Portfolio"), col = c(1,10),
        lty = c(-2, -1), pch = c(1, 1))
-
-
-
-
 
 #_____________________jianfeng
 
