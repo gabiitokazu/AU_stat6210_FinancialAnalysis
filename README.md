@@ -11,14 +11,15 @@ Prof. Dr. Roberto Molinari
 * Jianfeng Zhang
 * Takhellambam Bijoychandra Singh
 
+**Finished by October 02, 2020.**
+
 ***
 
 See `ToTheClient.Rmd` for the Analysis Report intended to the client (1)
 
 See `ToTheBoss.Rmd` for the full Analysis Report, intended to the boss (2)
 
-See `workable.R`for the development of the script, *i.e.* where we get our hands dirty and nothing is nice and pretty...
-
+See `workable.R`for the development of the script, *i.e.* where we get our hands dirty and nothing is nice nor pretty...
 
 ***
 
