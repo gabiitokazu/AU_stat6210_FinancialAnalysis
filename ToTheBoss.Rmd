@@ -36,24 +36,187 @@ Portfolio developed for a homework activity during the class STAT 6210 - R Progr
 ***
 # Financial Report
 
-#### Required output: Provide an html file for your boss which would allow them to replicate your analysis based on your explanations, codes and comments.
 
-Suppose that you are working in an investment bank as a quantitative analyst. Your boss asks you to create a portfolio for one of your clients. The client wants to find the portfolio with the smallest variance that satisfies the following constraints:
+# Required Library.
 
-- Considers only 5 companies of the S&P500.
-- The investment C is exactly $1,000,000.
-- You are allowed to invest in a maximum of 3 stocks.
+First of required libraries i.e. rvest, quantmod and tidyverse are called. 
+```{r stock, echo=TRUE}
+library(rvest)
+library(quantmod)
+library(tidyverse)
+```
 
-If needed, it is possible to consider weights with negative values. This means that you are allowed to short stocks.
-
-Your boss wants you to compute all possible portfolios that satisfy the client’s constraints, for each portfolio size (i.e. 1, 2 and 3 stocks) create a matrix with understandable row and column names in which, for each portfolio, you will store weights (when considering more than one stock in a portfolio),
-expected returns and risk, represent them graphically as (for example) in the graph below, and provide the weights of the best (i.e. minimum variance) portfolio with expected return and risk (i.e. variance).
-For the last task, in order to find the optimal weights we denote the vector of weights as \(\mathbf{w} \in \mathbb{R}^p\), where \(p\) is the number of stocks to invest, and denote the variance-covariance matrix of stocks as \(\mathbf{\Sigma}\). Then given the constraint that \(\mathbf{w}^T \mathbf{1} = 1\), where \(\mathbf{1}\) is the vector of \(1\) of length \(p\), we can construct the objective function with Lagrange multiplier as \(f(\mathbf{w}) = \mathbf{w}^T \mathbf{\Sigma} \mathbf{w} + \lambda(\mathbf{w}^T \mathbf{1} - 1)\) with some \(\lambda\). The optimal weights are therefore given by \[
-\mathbf{w}^* = \frac{\mathbf{\Sigma}^{-1} \mathbf{1}}{\mathbf{1}^T \mathbf{\Sigma}^{-1} \mathbf{1}}.
-\] Based on these weights, the expected return and risk are respectively given by \[\mu^* = ({\mathbf{w}^*}^T \mathbf{\mu}) \,C\] and \[\sigma^* = ({\mathbf{w}^*}^T \mathbf{\Sigma} \mathbf{w}^*) \, C^2\] where \(\mathbf{\mu}\) is the vector of expected (average) returns and \(C\) is the total investment.
+# Stock selection.
 
 
 
+```{r stock1, echo=TRUE}
+url <- "https://en.wikipedia.org/wiki/List_of_S%26P_500_companies"
+SP500 <- url %>%
+  xml2::read_html() %>%
+  html_nodes(xpath='//*[@id="mw-content-text"]/div/table[1]') %>%
+  html_table()
+SP500 <- SP500[[1]]
+Tix <- SP500$Symbol
+#randomly select 5 stocks
+set.seed(10)
+s=sample(Tix, 5)
+```
+Five stocks were selected randomly that download from this [link](https://en.wikipedia.org/wiki/List_of_S%26P_500_companies) i.e. `r s`
+
+# Temporal Scale
+
+In this analysis, a period of 3 years i.e. from  "2017-04-01" till "2020-04-01" were considered.
+```{r stock2, echo=TRUE}
+#time span for last 3 years
+three_year_ago <- seq(as.Date("2020-04-01"), length = 2, by = "-3 year")[2]
+getSymbols(s, from = three_year_ago, to = as.Date("2020-04-01"))
+```
+
+
+# Compute returns
+
+Here clcl() function is used to compute change in closing price.
+For example, "AAPL" company has change in closing price( clcl) as given below
+clcl= ((AAPL.Close at t+1 )-(AAPL.Close t))/(AAPL.Close at  t), where t= time step
+
+```{r stock3, echo=TRUE}
+
+WRK<- na.omit(ClCl(get(s[1])))
+DRI <- na.omit(ClCl(get(s[2])))
+MSCI<- na.omit(ClCl(get(s[3])))
+PBCT <- na.omit(ClCl(get(s[4])))
+UAL<- na.omit(ClCl(get(s[5])))
+```
+
+# Matrix 
+
+ This first matrix has 10x7 dimensions as it considers 3 portfolio out of 5 i.e. combination of C(5,3)=10
+```{r stock4, echo=TRUE}
+final=matrix(NA,10, 7)
+colnames(final)=c(s,"Exp return","Risk")
+```
+
+This loop  estimates the daily expected return and risk for each portfolios.
+Finally, this will choose the portfolio having minimum variance.
+```{r stock5, echo=TRUE}
+for (i in 1:10) {
+  stocks=cbind(WRK,DRI,MSCI,PBCT,UAL)
+  mat <- combn(1:5, 3)
+  aa=split(mat, rep(1:ncol(mat), each = nrow(mat)))
+  x=stocks[,aa[[i]]] 
+  # Estimation of mu and Sigma
+  sigma_stocks <- cov(x)
+  colnames(sigma_stocks)=c("Stock1","Stock2","Stock3")
+  mu <-sapply(x, mean)
+  # Compute weight
+  p<-c(1,1,1)
+  num <-solve(sigma_stocks)%*%p
+  den=t(p) %*% solve(sigma_stocks)%*%p
+  omega_star <-1/den[1] * num
+  # Compute mu^*
+  C=1e6
+  mu_star <-t(omega_star)%*% mu*C
+  # Compute sigma^*
+  sigma_star=t(omega_star)%*%sigma_stocks%*%omega_star*C^2
+  
+  final[i,aa[[i]]]=c(t(omega_star))
+  final[i,6:7]=c(mu_star,sigma_star)
+}
+#replace all NA value with 0
+stock3=replace_na(final,0)
+```
+
+Likewise, this loop will estimate the daily expected return and risk for 3 portfolio out of 5 i.e. combination of C(5,2)=10
+
+```{r stock6, echo=TRUE}
+# Selecting stock2
+final1=matrix(NA,10, 7)
+colnames(final)=c(s,"Exp return","Risk")
+for (i in 1:10) {
+  stocks=cbind(WRK,DRI,MSCI,PBCT,UAL)
+  mat <- combn(1:5, 2)
+  aa=split(mat, rep(1:ncol(mat), each = nrow(mat)))
+  x=stocks[,aa[[i]]] 
+  # Estimation of mu and Sigma
+  sigma_stocks <- cov(x)
+  colnames(sigma_stocks)=c("Stock1","Stock2")
+  mu <-sapply(x, mean)
+  # Compute weight
+  p<-c(1,1)
+  num <-solve(sigma_stocks)%*%p
+  den=t(p) %*% solve(sigma_stocks)%*%p
+  omega_star <-1/den[1] * num
+  # Compute mu^*
+  C=1e6
+  mu_star <-t(omega_star)%*% mu*C
+  # Compute sigma^*
+  sigma_star=t(omega_star)%*%sigma_stocks%*%omega_star*C^2
+  
+  final1[i,aa[[i]]]=c(t(omega_star))
+  final1[i,6:7]=c(mu_star,sigma_star)
+}
+#replace all NA value with 0
+stock2=replace_na(final1,0)
+```
+
+Again, this loop will estimate the daily expected return and risk for portfolios 1
+i.e.  combination of C(5,1)=5.
+
+```{r stock7, echo=TRUE}
+final2=matrix(NA,5, 7)
+colnames(final)=c(s,"Exp return","Risk")
+for (i in 1:5) {
+  stocks=cbind(WRK,DRI,MSCI,PBCT,UAL)
+  mat <- combn(1:5, 1)
+  aa=split(mat, rep(1:ncol(mat), each = nrow(mat)))
+  x=stocks[,aa[[i]]] 
+  # Estimation of mu and Sigma
+  sigma_stocks <- cov(x)
+  mu <-sapply(x, mean)
+  # Compute weight
+  p<-c(1)
+  num <-solve(sigma_stocks)%*%p
+  den=t(p) %*% solve(sigma_stocks)%*%p
+  omega_star <-1/den[1] * num
+  
+  # Compute mu^*
+  C=1e6
+  mu_star <-t(omega_star)%*% mu*C
+  # Compute sigma^*
+  sigma_star=t(omega_star)%*%sigma_stocks%*%omega_star*C^2
+  
+  final2[i,aa[[i]]]=c(t(omega_star))
+  final2[i,6:7]=c(mu_star,sigma_star)
+}
+#replace all NA value with 0
+stock1=replace_na(final2,0)
+```
+ Here, *stock* matrix showed the combine portfolios with using stock size of 3,2 and 1.
+
+```{r stock8, echo=TRUE}
+stock=rbind(stock3,stock2,stock1)
+stock
+```
+
+The best portfolios with its weight of stocks, daily expected return as well as risk is provided.
+```{r stock9, echo=TRUE}
+min_risk=which.min(stock[,7])
+best=round(stock[min_risk,],5)
+best
+```
+
+Graphically, it is shown in the plot below. The red dotted showed best portfolio out of the 25 portfolios shown in black having minimum risk of `r best[7]` and daily expected return of `r best[6]`. The weight for each stocks of *MSCI*, *PBCT*, and *UAL* are `r best[3]`,`r best[4]`, and `r best[5]` respectively.
+```{r stock10, echo=TRUE}
+plot(stock[-min_risk,7],stock[-min_risk,6],pch=1,type = "p",  col = 1, 
+     xlab = "Investment Daily Risk",
+     ylab = "Investment Daily Expected Return", main="Stock Portfolios")
+points(best[7], best[6],pch = 1, col = 10, type = "p")
+
+legend(5.8e8,1500, c("Possible portfolio", "Min-Variance Portfolio"), col = c(1,10),
+       lty = c(-2, -1), pch = c(1, 1))
+
+```
 
 
 

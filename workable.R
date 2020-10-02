@@ -26,31 +26,31 @@ getSymbols(stocks_names, from = three_year_ago, to = as.Date("2020-04-01"))
 
 WRK <- na.omit(ClCl(get(stocks_names[1]))) # West Rock Packaging Solutions
 DRI <- na.omit(ClCl(get(stocks_names[2]))) # Darden Restaurants Inc
-MSCI <- na.omit(ClCl(get(stocks_names[3]))) # Msci Inc
-PBCT <- na.omit(ClCl(get(stocks_names[4]))) # People's United Financial Inc
+MYL <- na.omit(ClCl(get(stocks_names[3]))) # Mylan N.V.
+PEP <- na.omit(ClCl(get(stocks_names[4]))) # PepsiCo Inc
 UAL <- na.omit(ClCl(get(stocks_names[5]))) # United Airlines
 
 # attributes the returns data to a new object
-stocks_considered <- cbind(WRK,DRI,MSCI,PBCT,UAL)
-colnames(stocks_considered) = c("WRK","DRI","MDCI","PBCT","UAL")
+stocks_considered <- cbind(WRK,DRI,MYL,PEP,UAL)
+colnames(stocks_considered) = c("WRK","DRI","MYL","PEP","UAL")
 
 # assign total investment to variable C
 C <- 1e6
+
+# creates empty vector p
+p <- c()
 
 # creates empty data.frame to be populated with the weights for each company
 # of the different sized portfolios (rows for each company-named column)
 # and respective Expected Return and Risk values.!
 stocks <- data.frame("WRK" = double(0),
                      "DRI" = double(0),
-                     "MDCI" = double(0),
-                     "PBCT" = double(0),
+                     "MYL" = double(0),
+                     "PEP" = double(0),
                      "UAL" = double(0),
-                     "Return" = double(0),
+                     "ExpReturn" = double(0),
                      "Risk" = double(0)
 )
-
-# creates empty vector p
-p <- c()
 
 
 for (i in 1:3){
@@ -95,7 +95,7 @@ for (i in 1:3){
 min_risk <- which.min(stocks[,7])
 best <- stocks[min_risk,]
 
-# creates plot
+#plot------------------------------------------------------------------------------
 plot(stocks[-min_risk,7],stocks[-min_risk,6],pch=1,type = "p",  col = 1, 
      xlab = "Investment Daily Risk",
      ylab = "Investment Daily Expected Return", main="Stock Portfolios")
@@ -103,6 +103,41 @@ points(best[7], best[6],pch = 1, col = 10, type = "p")
 
 legend(5.8e8,1500, c("Possible portfolio", "Min-Variance Portfolio"), col = c(1,10),
        lty = c(-2, -1), pch = c(1, 1))
+
+
+min_risk <- which.min(stocks$Risk)
+max_return <- which.max(stocks$ExpReturn)
+
+
+# another plot ---------------------------------------------------------------
+stocks$col = "Options Analyzed"
+min = which.min(stocks[,1]) # shows the minimum value (row)
+stocks$col[min_risk] = "Lowest Risk"
+stocks$col[max_return] = "Highest Return"
+library(ggplot2)
+ggplot(stocks, aes(x=Risk, y=ExpReturn, color = col )) + 
+        geom_point() + 
+        theme_test() +
+        theme(legend.title = element_blank(), legend.position= c(0.80,0.91), 
+              plot.title = element_text(hjust = 0.5)) +
+        xlab("Portfolio Risk") + 
+        ylab("Portfolio Expected Returns") +
+        ggtitle("Your options")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 #_____________________jianfeng
 
