@@ -15,6 +15,18 @@ pagetitle: "Homework 2, Group 9: to the Boss"
 ```
 
 
+
+***
+
+<div class="disclosure">
+
+Portfolio developed for a homework activity during the class STAT 6210 - R Programming for Data Science (Auburn University, Fall 2020). The general idea is that the group works as a quantitative analysts for an investment bank, and we needed to present a Portfolio for our boss (Dr. Molinari, in this very real case) with the a client's options. This document was finalized in `r format(Sys.Date(), '%B %d, %Y')`. One can find more about this assignment [here](https://github.com/AU-R-Programming/HW2-9/blob/master/ToTheBoss.Rmd).
+
+</div>
+
+***
+
+
 ## Dear Boss,
 ### Please find our finalized report below.
 \
@@ -22,65 +34,76 @@ pagetitle: "Homework 2, Group 9: to the Boss"
 #### Best regards,
 ##### Ana Gabriela Itokazu, Jianfeng Zhang, and Takhellambam Bijoychandra Singh.
 
+<div style="text-align: justify">
+\
+# Financial Report
+\
 
-***
-<div class="disclosure">
+The team generated 25 portfolios options for the Client, based on their specified constraints, such as:
 
-Portfolio developed for a homework activity during the class STAT 6210 - R Programming for Data Science (Auburn University, Fall 2020). The general idea is that the group works as a quantitative analysts for an investment bank, and we needed to present a Portfolio for our boss (Dr. Molinari, in this very real case) with the a client's options. This document was finalized in `r format(Sys.Date(), '%B %d, %Y')`. One can find more about this assignment [here](https://github.com/AU-R-Programming/HW2-9/blob/master/ToTheBoss.Rmd).
+- Only 5 companies of S&P 500 were considered.
+- The Client's investment is $1,000,000.
+- The maximum portfolio size is 3 stocks.
 
+To do that, specific libraries (*i.e.* `rvest`, `quantmod`, `tidyverse`, and `plotly`) are used in an `R` Programming Environment. 
 </div>
 
-
-<div style="text-align: justify">
-
-***
-# Financial Report
-
-
-# Required Library.
-
-First of required libraries i.e. rvest, quantmod and tidyverse are called. 
-```{r stock, echo=FALSE, include=FALSE}
+```{r libraries, echo=FALSE, eval=TRUE, message=FALSE, warning=FALSE}
 library(rvest)
 library(quantmod)
 library(tidyverse)
 library(plotly) 
 ```
 
-# Stock selection.
+\
 
+### Stock selection
 
+Five stocks were selected from [S&P 500](https://en.wikipedia.org/wiki/List_of_S%26P_500_companies) randomly:
 
-```{r random_sample, echo=FALSE}
+```{r random_sample, echo=TRUE, warning=FALSE}
 url <- "https://en.wikipedia.org/wiki/List_of_S%26P_500_companies"
 SP500 <- url %>%
   xml2::read_html() %>%
   html_nodes(xpath='//*[@id="mw-content-text"]/div/table[1]') %>%
   html_table()
 SP500 <- SP500[[1]]
+# gets full list of stocks in SP500
 Tix <- SP500$Symbol
 
-set.seed(100)
+# makes the code reproducible and samples randomly 5 stocks from SP500
+set.seed(100) 
 stocks_names <- sample(Tix, 5)
 ```
-Five stocks were selected randomly that download from this [link](https://en.wikipedia.org/wiki/List_of_S%26P_500_companies) i.e. `r stocks_names` where 
 
-`r stocks_names[1]`=fORTIVE Corp, `r stocks_names[2]`= Zimmer Biomet Holdings, `r stocks_names[3]`=Oracle Corp., `r stocks_names[4]`=Citrix Systems, and `r stocks_names[5]`=Xilinx.
+The stocks selected are:
 
-# Temporal Scale 
+- Fortive Corp (`r stocks_names[1]`)
+- Zimmer Biomet Holdings Inc. (`r stocks_names[2]`)
+- Oracle Corporation (`r stocks_names[3]`)
+- Citrix Systems, Inc. (`r stocks_names[4]`)
+- Xilinx, Inc. (`r stocks_names[5]`)
 
-In this analysis, a  time span for last 3 years i.e. from  "2017-04-01" till "2020-04-01" were considered.
-```{r time_span, echo=FALSE, include=FALSE}
+\
+
+### Data time frame for Analysis 
+
+In this analysis, a time span for the last 3 years (*i.e.* from  "2017-09-01" to "2020-09-01") was considered, and the data was fetched from the S&P 500 data base:
+
+```{r time_fetch, echo=TRUE, warning=FALSE, message=FALSE}
 #time span for last 3 years
 three_year_ago <- seq(as.Date("2020-04-01"), length = 2, by = "-3 year")[2]
+#fetch data from web
 getSymbols(stocks_names, from = three_year_ago, to = as.Date("2020-04-01"))
 ```
 
-# Compute returns
+\
 
-clcl() function is used to compute change in closing price.For example, "AAPL" company has change in closing price( clcl) as given below clcl= ((AAPL.Close at t+1 )-(AAPL.Close t))/(AAPL.Close at  t), where t= time step
+### Compute returns
 
-```{r fetch_data, echo=FALSE}
+To compute the change in closing price values for each stock, the `ClCl()` function was applied to each of the stock's data, and all stocks were combined into one `xts` object:
+
+```{r ClCl, echo=TRUE, warning=FALSE}
 
 FTV <- na.omit(ClCl(get(stocks_names[1]))) # Fortive Corp
 ZBH <- na.omit(ClCl(get(stocks_names[2]))) # Zimmer Biomet Holdings Inc.
@@ -93,7 +116,12 @@ colnames(stocks_considered) = c("FTV", "ZBH", "ORCL", "CTXS", "XLNX")
 
 ```
 
-# Matrix 
+\
+
+### Matrix 
+
+Then we proceed to generate portfolio options for the client
+The base matrix for the output of the respective weights a
 
 ```{r prepping_loop, echo=FALSE}
 C <- 1e6

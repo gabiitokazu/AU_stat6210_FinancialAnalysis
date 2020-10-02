@@ -4,6 +4,14 @@ library(rvest)
 library(quantmod)
 library(tidyverse)
 
+
+#####
+#####---------------------------------------------------------------------------
+## Final code, used on the reports, begin:
+#####---------------------------------------------------------------------------
+#####
+
+
 url <- "https://en.wikipedia.org/wiki/List_of_S%26P_500_companies"
 SP500 <- url %>%
         xml2::read_html() %>%
@@ -95,6 +103,15 @@ for (i in 1:3){
 min_risk <- which.min(stocks[,7])
 best <- stocks[min_risk,]
 
+#####
+#####---------------------------------------------------------------------------
+## Final code, used on the reports, ends.
+#####---------------------------------------------------------------------------
+#####
+
+# plot options:
+# 
+# 
 #plot------------------------------------------------------------------------------
 plot(stocks[-min_risk,7],stocks[-min_risk,6],pch=1,type = "p",  col = 1, 
      xlab = "Daily Risk",

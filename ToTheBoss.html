@@ -2253,6 +2253,11 @@ summary {
      }
  
  </style>
+<hr />
+<div class="disclosure">
+<p>Portfolio developed for a homework activity during the class STAT 6210 - R Programming for Data Science (Auburn University, Fall 2020). The general idea is that the group works as a quantitative analysts for an investment bank, and we needed to present a Portfolio for our boss (Dr. Molinari, in this very real case) with the a client’s options. This document was finalized in October 02, 2020. One can find more about this assignment <a href="https://github.com/AU-R-Programming/HW2-9/blob/master/ToTheBoss.Rmd">here</a>.</p>
+</div>
+<hr />
 <div id="dear-boss" class="section level2">
 <h2>Dear Boss,</h2>
 <div id="please-find-our-finalized-report-below." class="section level3">
@@ -2263,36 +2268,72 @@ summary {
 <h4>Best regards,</h4>
 <div id="ana-gabriela-itokazu-jianfeng-zhang-and-takhellambam-bijoychandra-singh." class="section level5">
 <h5>Ana Gabriela Itokazu, Jianfeng Zhang, and Takhellambam Bijoychandra Singh.</h5>
-<hr />
-<div class="disclosure">
-<p>Portfolio developed for a homework activity during the class STAT 6210 - R Programming for Data Science (Auburn University, Fall 2020). The general idea is that the group works as a quantitative analysts for an investment bank, and we needed to present a Portfolio for our boss (Dr. Molinari, in this very real case) with the a client’s options. This document was finalized in October 02, 2020. One can find more about this assignment <a href="https://github.com/AU-R-Programming/HW2-9/blob/master/ToTheBoss.Rmd">here</a>.</p>
-</div>
 <div style="text-align: justify">
+<p><br />
+# Financial Report<br />
+</p>
+<p>The team generated 25 portfolios options for the Client, based on their specified constraints, such as:</p>
+<ul>
+<li>Only 5 companies of S&amp;P 500 were considered.</li>
+<li>The Client’s investment is $1,000,000.</li>
+<li>The maximum portfolio size is 3 stocks.</li>
+</ul>
+<p>To do that, specific libraries (<em>i.e.</em> <code>rvest</code>, <code>quantmod</code>, <code>tidyverse</code>, and <code>plotly</code>) are used in an <code>R</code> Programming Environment.</p>
+</div>
+<p><br />
+</p>
+</div>
+</div>
+</div>
+<div id="stock-selection" class="section level3">
+<h3>Stock selection</h3>
+<p>Five stocks were selected from <a href="https://en.wikipedia.org/wiki/List_of_S%26P_500_companies">S&amp;P 500</a> randomly:</p>
+<pre class="r"><code>url &lt;- &quot;https://en.wikipedia.org/wiki/List_of_S%26P_500_companies&quot;
+SP500 &lt;- url %&gt;%
+  xml2::read_html() %&gt;%
+  html_nodes(xpath=&#39;//*[@id=&quot;mw-content-text&quot;]/div/table[1]&#39;) %&gt;%
+  html_table()
+SP500 &lt;- SP500[[1]]
+# gets full list of stocks in SP500
+Tix &lt;- SP500$Symbol
 
-<hr />
+# makes the code reproducible and samples randomly 5 stocks from SP500
+set.seed(100) 
+stocks_names &lt;- sample(Tix, 5)</code></pre>
+<p>The stocks selected are are:</p>
+<ul>
+<li>Fortive Corp (FTV)</li>
+<li>Zimmer Biomet Holdings Inc. (ZBH)</li>
+<li>Oracle Corporation (ORCL)</li>
+<li>Citrix Systems, Inc. (CTXS)</li>
+<li>Xilinx, Inc. (XLNX)</li>
+</ul>
+<p><br />
+</p>
 </div>
+<div id="data-time-frame-for-analysis" class="section level3">
+<h3>Data time frame for Analysis</h3>
+<p>In this analysis, a time span for the last 3 years (<em>i.e.</em> from “2017-09-01” to “2020-09-01”) was considered, and the data was fetched from the S&amp;P 500 data base:</p>
+<pre class="r"><code>#time span for last 3 years
+three_year_ago &lt;- seq(as.Date(&quot;2020-04-01&quot;), length = 2, by = &quot;-3 year&quot;)[2]
+#fetch data from web
+getSymbols(stocks_names, from = three_year_ago, to = as.Date(&quot;2020-04-01&quot;))</code></pre>
+<pre><code>## [1] &quot;FTV&quot;  &quot;ZBH&quot;  &quot;ORCL&quot; &quot;CTXS&quot; &quot;XLNX&quot;</code></pre>
+<p><br />
+</p>
 </div>
+<div id="compute-returns" class="section level3">
+<h3>Compute returns</h3>
+<p>To compute the change in closing price values for each stock, the <code>ClCl()</code> function was applied to each of the stock’s data:</p>
+<pre class="r"><code>FTV &lt;- na.omit(ClCl(get(stocks_names[1]))) # Fortive Corp
+ZBH &lt;- na.omit(ClCl(get(stocks_names[2]))) # Zimmer Biomet Holdings Inc.
+ORCL &lt;- na.omit(ClCl(get(stocks_names[3]))) # Oracle Corporation
+CTXS &lt;- na.omit(ClCl(get(stocks_names[4]))) # Citrix Systems, Inc.
+XLNX &lt;- na.omit(ClCl(get(stocks_names[5]))) # Xilinx, Inc.
+
+stocks_considered &lt;- cbind(FTV, ZBH, ORCL, CTXS, XLNX)
+colnames(stocks_considered) = c(&quot;FTV&quot;, &quot;ZBH&quot;, &quot;ORCL&quot;, &quot;CTXS&quot;, &quot;XLNX&quot;)</code></pre>
 </div>
-</div>
-<div id="financial-report" class="section level1">
-<h1>Financial Report</h1>
-</div>
-<div id="required-library." class="section level1">
-<h1>Required Library.</h1>
-<p>First of required libraries i.e. rvest, quantmod and tidyverse are called.</p>
-</div>
-<div id="stock-selection." class="section level1">
-<h1>Stock selection.</h1>
-<p>Five stocks were selected randomly that download from this <a href="https://en.wikipedia.org/wiki/List_of_S%26P_500_companies">link</a> i.e. FTV, ZBH, ORCL, CTXS, XLNX where</p>
-<p>FTV=fORTIVE Corp, ZBH= Zimmer Biomet Holdings, ORCL=Oracle Corp., CTXS=Citrix Systems, and XLNX=Xilinx.</p>
-</div>
-<div id="temporal-scale" class="section level1">
-<h1>Temporal Scale</h1>
-<p>In this analysis, a time span for last 3 years i.e. from “2017-04-01” till “2020-04-01” were considered.</p>
-</div>
-<div id="compute-returns" class="section level1">
-<h1>Compute returns</h1>
-<p>clcl() function is used to compute change in closing price.For example, “AAPL” company has change in closing price( clcl) as given below clcl= ((AAPL.Close at t+1 )-(AAPL.Close t))/(AAPL.Close at t), where t= time step</p>
 </div>
 <div id="matrix" class="section level1">
 <h1>Matrix</h1>
@@ -2340,7 +2381,7 @@ summary {
 <p>The best portfolios with its weight of stocks, daily expected return as well as risk is provided.</p>
 <p>Graphically, it is shown in the plot below. The red dotted showed best portfolio out of the 25 portfolios shown in black having minimum risk of 1.441544410^{8} and daily expected return of 431.6173826. The weight for each stocks of <em>FTV</em>, <em>ZBH</em>, and <em>CTXS</em> are 0.1817474,0.2640866, and 0.554166 respectively. So, the portfolio 2 is the best option one can invest considering the minimum risk.</p>
 <div id="htmlwidget-c5033645618606b62af7" style="width:624px;height:432px;" class="plotly html-widget"></div>
-<script type="application/json" data-for="htmlwidget-c5033645618606b62af7">{"x":{"data":[{"x":[314002764.713266,317746114.215578,334050517.461044,209522278.079109,587766893.985202,242281553.694476,244024617.771361,161879562.329856,292910354.807884,215421564.755332,151541771.858585,264784263.996422,187211049.455898,307437236.762014,199084190.610505,203331153.884741,144154441.864352,232285848.013008,160057117.856777,242230180.440032,161872151.295687,147643364.00313,211827774.711204,150949936.729301,185415738.88446],"y":[43.4815950157299,-84.917745201537,271.121370733099,805.066266999187,703.81441082808,-19.9015536487722,150.142727882326,531.79290157404,182.825049885091,86.5247172496856,474.596867322704,142.41572549697,655.310038893574,373.03874686352,790.809879516856,76.6444428109208,431.617382568628,81.7205259242872,514.067531159942,187.0312894842,530.365735957004,442.166430412276,136.294954440352,482.629870795887,668.86166721939],"text":["Risk: 314002765<br />ExpReturn:  43.48160","Risk: 317746114<br />ExpReturn: -84.91775","Risk: 334050517<br />ExpReturn: 271.12137","Risk: 209522278<br />ExpReturn: 805.06627","Risk: 587766894<br />ExpReturn: 703.81441","Risk: 242281554<br />ExpReturn: -19.90155","Risk: 244024618<br />ExpReturn: 150.14273","Risk: 161879562<br />ExpReturn: 531.79290","Risk: 292910355<br />ExpReturn: 182.82505","Risk: 215421565<br />ExpReturn:  86.52472","Risk: 151541772<br />ExpReturn: 474.59687","Risk: 264784264<br />ExpReturn: 142.41573","Risk: 187211049<br />ExpReturn: 655.31004","Risk: 307437237<br />ExpReturn: 373.03875","Risk: 199084191<br />ExpReturn: 790.80988","Risk: 203331154<br />ExpReturn:  76.64444","Risk: 144154442<br />ExpReturn: 431.61738","Risk: 232285848<br />ExpReturn:  81.72053","Risk: 160057118<br />ExpReturn: 514.06753","Risk: 242230180<br />ExpReturn: 187.03129","Risk: 161872151<br />ExpReturn: 530.36574","Risk: 147643364<br />ExpReturn: 442.16643","Risk: 211827775<br />ExpReturn: 136.29495","Risk: 150949937<br />ExpReturn: 482.62987","Risk: 185415739<br />ExpReturn: 668.86167"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(0,0,0,1)","opacity":1,"size":5.66929133858268,"symbol":"circle","line":{"width":1.88976377952756,"color":"rgba(0,0,0,1)"}},"hoveron":"points","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[144154441.864352],"y":[431.617382568628],"text":"Risk: 144154442<br />ExpReturn: 431.6174<br />Risk: 144154442<br />ExpReturn: 431.6174","type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(255,0,0,1)","opacity":1,"size":5.66929133858268,"symbol":"circle","line":{"width":1.88976377952756,"color":"rgba(255,0,0,1)"}},"hoveron":"points","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[0.14,0.135],"y":[0.01,0.06],"text":"x: 0.14<br />xend: 0.135<br />y: 0.01<br />yend: 0.06","type":"scatter","mode":"lines","line":{"width":1.88976377952756,"color":"rgba(255,0,0,1)","dash":"solid"},"hoveron":"points","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[0.22,0.2275],"y":[0.405,0.365],"text":"x: 0.22<br />xend: 0.2275<br />y: 0.405<br />yend: 0.365","type":"scatter","mode":"lines","line":{"width":1.88976377952756,"color":"rgba(255,0,0,1)","dash":"solid"},"hoveron":"points","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null}],"layout":{"margin":{"t":44.0872653475393,"r":7.30593607305936,"b":40.5073566717402,"l":43.1050228310502},"plot_bgcolor":"rgba(255,255,255,1)","paper_bgcolor":"rgba(255,255,255,1)","font":{"color":"rgba(0,0,0,1)","family":"","size":14.6118721461187},"title":{"text":"Client's Portfolio Optimization","font":{"color":"rgba(0,0,0,1)","family":"","size":17.5342465753425},"x":0,"xref":"paper"},"xaxis":{"domain":[0,1],"automargin":true,"type":"linear","autorange":false,"range":[-29388344.5575101,617155238.677712],"tickmode":"array","ticktext":["0e+00","2e+08","4e+08","6e+08"],"tickvals":[0,200000000,400000000,600000000],"categoryorder":"array","categoryarray":["0e+00","2e+08","4e+08","6e+08"],"nticks":null,"ticks":"outside","tickcolor":"rgba(51,51,51,1)","ticklen":3.65296803652968,"tickwidth":0.66417600664176,"showticklabels":true,"tickfont":{"color":"rgba(77,77,77,1)","family":"","size":11.689497716895},"tickangle":-0,"showline":true,"linecolor":"rgba(0,0,0,1)","linewidth":0.66417600664176,"showgrid":false,"gridcolor":null,"gridwidth":0,"zeroline":false,"anchor":"y","title":{"text":"Portfolio Risk","font":{"color":"rgba(0,0,0,1)","family":"","size":14.6118721461187}},"hoverformat":".2f"},"yaxis":{"domain":[0,1],"automargin":true,"type":"linear","autorange":false,"range":[-129.416945811573,849.565467609223],"tickmode":"array","ticktext":["0","200","400","600","800"],"tickvals":[0,200,400,600,800],"categoryorder":"array","categoryarray":["0","200","400","600","800"],"nticks":null,"ticks":"outside","tickcolor":"rgba(51,51,51,1)","ticklen":3.65296803652968,"tickwidth":0.66417600664176,"showticklabels":true,"tickfont":{"color":"rgba(77,77,77,1)","family":"","size":11.689497716895},"tickangle":-0,"showline":true,"linecolor":"rgba(0,0,0,1)","linewidth":0.66417600664176,"showgrid":false,"gridcolor":null,"gridwidth":0,"zeroline":false,"anchor":"x","title":{"text":"Portfolio Returns","font":{"color":"rgba(0,0,0,1)","family":"","size":14.6118721461187}},"hoverformat":".2f"},"shapes":[{"type":"rect","fillcolor":null,"line":{"color":null,"width":0,"linetype":[]},"yref":"paper","xref":"paper","x0":0,"x1":1,"y0":0,"y1":1}],"showlegend":false,"legend":{"bgcolor":"rgba(255,255,255,1)","bordercolor":"transparent","borderwidth":1.88976377952756,"font":{"color":"rgba(0,0,0,1)","family":"","size":11.689497716895}},"hovermode":"closest","barmode":"relative"},"config":{"doubleClick":"reset","showSendToCloud":false},"source":"A","attrs":{"a8bc460171b4":{"x":{},"y":{},"type":"scatter"},"a8bc611a4421":{"x":{},"y":{},"x.1":{},"y.1":{}},"a8bc77b46ad1":{"x":{},"xend":{},"y":{},"yend":{}},"a8bc1a112f20":{"x":{},"xend":{},"y":{},"yend":{}}},"cur_data":"a8bc460171b4","visdat":{"a8bc460171b4":["function (y) ","x"],"a8bc611a4421":["function (y) ","x"],"a8bc77b46ad1":["function (y) ","x"],"a8bc1a112f20":["function (y) ","x"]},"highlight":{"on":"plotly_click","persistent":false,"dynamic":false,"selectize":false,"opacityDim":0.2,"selected":{"opacity":1},"debounce":0},"shinyEvents":["plotly_hover","plotly_click","plotly_selected","plotly_relayout","plotly_brushed","plotly_brushing","plotly_clickannotation","plotly_doubleclick","plotly_deselect","plotly_afterplot","plotly_sunburstclick"],"base_url":"https://plot.ly"},"evals":[],"jsHooks":[]}</script>
+<script type="application/json" data-for="htmlwidget-c5033645618606b62af7">{"x":{"data":[{"x":[314002764.713266,317746114.215578,334050517.461044,209522278.079109,587766893.985202,242281553.694476,244024617.771361,161879562.329856,292910354.807884,215421564.755332,151541771.858585,264784263.996422,187211049.455898,307437236.762014,199084190.610505,203331153.884741,144154441.864352,232285848.013008,160057117.856777,242230180.440032,161872151.295687,147643364.00313,211827774.711204,150949936.729301,185415738.88446],"y":[43.4815950157299,-84.917745201537,271.121370733099,805.066266999187,703.81441082808,-19.9015536487722,150.142727882326,531.79290157404,182.825049885091,86.5247172496856,474.596867322704,142.41572549697,655.310038893574,373.03874686352,790.809879516856,76.6444428109208,431.617382568628,81.7205259242872,514.067531159942,187.0312894842,530.365735957004,442.166430412276,136.294954440352,482.629870795887,668.86166721939],"text":["Risk: 314002765<br />ExpReturn:  43.48160","Risk: 317746114<br />ExpReturn: -84.91775","Risk: 334050517<br />ExpReturn: 271.12137","Risk: 209522278<br />ExpReturn: 805.06627","Risk: 587766894<br />ExpReturn: 703.81441","Risk: 242281554<br />ExpReturn: -19.90155","Risk: 244024618<br />ExpReturn: 150.14273","Risk: 161879562<br />ExpReturn: 531.79290","Risk: 292910355<br />ExpReturn: 182.82505","Risk: 215421565<br />ExpReturn:  86.52472","Risk: 151541772<br />ExpReturn: 474.59687","Risk: 264784264<br />ExpReturn: 142.41573","Risk: 187211049<br />ExpReturn: 655.31004","Risk: 307437237<br />ExpReturn: 373.03875","Risk: 199084191<br />ExpReturn: 790.80988","Risk: 203331154<br />ExpReturn:  76.64444","Risk: 144154442<br />ExpReturn: 431.61738","Risk: 232285848<br />ExpReturn:  81.72053","Risk: 160057118<br />ExpReturn: 514.06753","Risk: 242230180<br />ExpReturn: 187.03129","Risk: 161872151<br />ExpReturn: 530.36574","Risk: 147643364<br />ExpReturn: 442.16643","Risk: 211827775<br />ExpReturn: 136.29495","Risk: 150949937<br />ExpReturn: 482.62987","Risk: 185415739<br />ExpReturn: 668.86167"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(0,0,0,1)","opacity":1,"size":5.66929133858268,"symbol":"circle","line":{"width":1.88976377952756,"color":"rgba(0,0,0,1)"}},"hoveron":"points","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[144154441.864352],"y":[431.617382568628],"text":"Risk: 144154442<br />ExpReturn: 431.6174<br />Risk: 144154442<br />ExpReturn: 431.6174","type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(255,0,0,1)","opacity":1,"size":5.66929133858268,"symbol":"circle","line":{"width":1.88976377952756,"color":"rgba(255,0,0,1)"}},"hoveron":"points","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[0.14,0.135],"y":[0.01,0.06],"text":"x: 0.14<br />xend: 0.135<br />y: 0.01<br />yend: 0.06","type":"scatter","mode":"lines","line":{"width":1.88976377952756,"color":"rgba(255,0,0,1)","dash":"solid"},"hoveron":"points","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[0.22,0.2275],"y":[0.405,0.365],"text":"x: 0.22<br />xend: 0.2275<br />y: 0.405<br />yend: 0.365","type":"scatter","mode":"lines","line":{"width":1.88976377952756,"color":"rgba(255,0,0,1)","dash":"solid"},"hoveron":"points","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null}],"layout":{"margin":{"t":44.0872653475393,"r":7.30593607305936,"b":40.5073566717402,"l":43.1050228310502},"plot_bgcolor":"rgba(255,255,255,1)","paper_bgcolor":"rgba(255,255,255,1)","font":{"color":"rgba(0,0,0,1)","family":"","size":14.6118721461187},"title":{"text":"Client's Portfolio Optimization","font":{"color":"rgba(0,0,0,1)","family":"","size":17.5342465753425},"x":0,"xref":"paper"},"xaxis":{"domain":[0,1],"automargin":true,"type":"linear","autorange":false,"range":[-29388344.5575101,617155238.677712],"tickmode":"array","ticktext":["0e+00","2e+08","4e+08","6e+08"],"tickvals":[0,200000000,400000000,600000000],"categoryorder":"array","categoryarray":["0e+00","2e+08","4e+08","6e+08"],"nticks":null,"ticks":"outside","tickcolor":"rgba(51,51,51,1)","ticklen":3.65296803652968,"tickwidth":0.66417600664176,"showticklabels":true,"tickfont":{"color":"rgba(77,77,77,1)","family":"","size":11.689497716895},"tickangle":-0,"showline":true,"linecolor":"rgba(0,0,0,1)","linewidth":0.66417600664176,"showgrid":false,"gridcolor":null,"gridwidth":0,"zeroline":false,"anchor":"y","title":{"text":"Portfolio Risk","font":{"color":"rgba(0,0,0,1)","family":"","size":14.6118721461187}},"hoverformat":".2f"},"yaxis":{"domain":[0,1],"automargin":true,"type":"linear","autorange":false,"range":[-129.416945811573,849.565467609223],"tickmode":"array","ticktext":["0","200","400","600","800"],"tickvals":[0,200,400,600,800],"categoryorder":"array","categoryarray":["0","200","400","600","800"],"nticks":null,"ticks":"outside","tickcolor":"rgba(51,51,51,1)","ticklen":3.65296803652968,"tickwidth":0.66417600664176,"showticklabels":true,"tickfont":{"color":"rgba(77,77,77,1)","family":"","size":11.689497716895},"tickangle":-0,"showline":true,"linecolor":"rgba(0,0,0,1)","linewidth":0.66417600664176,"showgrid":false,"gridcolor":null,"gridwidth":0,"zeroline":false,"anchor":"x","title":{"text":"Portfolio Returns","font":{"color":"rgba(0,0,0,1)","family":"","size":14.6118721461187}},"hoverformat":".2f"},"shapes":[{"type":"rect","fillcolor":null,"line":{"color":null,"width":0,"linetype":[]},"yref":"paper","xref":"paper","x0":0,"x1":1,"y0":0,"y1":1}],"showlegend":false,"legend":{"bgcolor":"rgba(255,255,255,1)","bordercolor":"transparent","borderwidth":1.88976377952756,"font":{"color":"rgba(0,0,0,1)","family":"","size":11.689497716895}},"hovermode":"closest","barmode":"relative"},"config":{"doubleClick":"reset","showSendToCloud":false},"source":"A","attrs":{"1847a76b28342":{"x":{},"y":{},"type":"scatter"},"1847a41c79eef":{"x":{},"y":{},"x.1":{},"y.1":{}},"1847a18937ea6":{"x":{},"xend":{},"y":{},"yend":{}},"1847a7b5fd0e4":{"x":{},"xend":{},"y":{},"yend":{}}},"cur_data":"1847a76b28342","visdat":{"1847a76b28342":["function (y) ","x"],"1847a41c79eef":["function (y) ","x"],"1847a18937ea6":["function (y) ","x"],"1847a7b5fd0e4":["function (y) ","x"]},"highlight":{"on":"plotly_click","persistent":false,"dynamic":false,"selectize":false,"opacityDim":0.2,"selected":{"opacity":1},"debounce":0},"shinyEvents":["plotly_hover","plotly_click","plotly_selected","plotly_relayout","plotly_brushed","plotly_brushing","plotly_clickannotation","plotly_doubleclick","plotly_deselect","plotly_afterplot","plotly_sunburstclick"],"base_url":"https://plot.ly"},"evals":[],"jsHooks":[]}</script>
 </div>
 
 
