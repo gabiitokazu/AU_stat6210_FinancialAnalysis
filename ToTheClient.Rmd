@@ -32,28 +32,16 @@ Portfolio developed for a homework activity during the class STAT 6210 - R Progr
 <div style="text-align: justify">
 
 # Financial Report
+The five companies that were selected are listed below, each followed by its label, that is used to identify the stock in the databases.
 
-#### Required output: Produce a short html file (not more than the equivalent of two pages) representing a brief financial report for the client (no code details) describing what was done and what your conclusions are.
-
-Suppose that you are working in an investment bank as a quantitative analyst. Your boss asks you to create a portfolio for one of your clients. The client wants to find the portfolio with the smallest variance that satisfies the following constraints:
-
-- Considers only 5 companies of the S&P500.
-- The investment C is exactly $1,000,000.
-- You are allowed to invest in a maximum of 3 stocks.
-
-If needed, it is possible to consider weights with negative values. This means that you are allowed to short stocks.
-
-Your boss wants you to compute all possible portfolios that satisfy the client’s constraints, for each portfolio size (i.e. 1, 2 and 3 stocks) create a matrix with understandable row and column names in which, for each portfolio, you will store weights (when considering more than one stock in a portfolio),
-expected returns and risk, represent them graphically as (for example) in the graph below, and provide the weights of the best (i.e. minimum variance) portfolio with expected return and risk (i.e. variance).
-For the last task, in order to find the optimal weights we denote the vector of weights as \(\mathbf{w} \in \mathbb{R}^p\), where \(p\) is the number of stocks to invest, and denote the variance-covariance matrix of stocks as \(\mathbf{\Sigma}\). Then given the constraint that \(\mathbf{w}^T \mathbf{1} = 1\), where \(\mathbf{1}\) is the vector of \(1\) of length \(p\), we can construct the objective function with Lagrange multiplier as \(f(\mathbf{w}) = \mathbf{w}^T \mathbf{\Sigma} \mathbf{w} + \lambda(\mathbf{w}^T \mathbf{1} - 1)\) with some \(\lambda\). The optimal weights are therefore given by \[
-\mathbf{w}^* = \frac{\mathbf{\Sigma}^{-1} \mathbf{1}}{\mathbf{1}^T \mathbf{\Sigma}^{-1} \mathbf{1}}.
-\] Based on these weights, the expected return and risk are respectively given by \[\mu^* = ({\mathbf{w}^*}^T \mathbf{\mu}) \,C\] and \[\sigma^* = ({\mathbf{w}^*}^T \mathbf{\Sigma} \mathbf{w}^*) \, C^2\] where \(\mathbf{\mu}\) is the vector of expected (average) returns and \(C\) is the total investment.
+- West Rock Packaging Solutions (WRK)
+- Darden Restaurants Inc. (DRI)
+- Mylan Pharmaceuticals (MYL)
+- PepsiCo Inc. (PBCT)
+- United Airlines (UAL)
 
 
-
-
-
-
+The stocks considered for this report are listed in the S&P 500 (Standard & Poor's 500 Index), which incorporates the current 500 largest U.S. publicly traded companies. This was done not only based on the availability of the data, but also because this data base is a benchmark for financial analysis. For an optimized portfolio, we based our analysis in 5 randomly-sampled companies from the S&P 500, and simulated portfolios of different sizes (1, 2, and 3 companies), and with different options of weights for the said companies, in order to find the least risk.
 
 
 
@@ -70,9 +58,7 @@ library(tidyverse)
 
 # Stock selection.
 
-
-
-```{r stock1, echo=TRUE}
+```{r random_sample, echo=FALSE}
 url <- "https://en.wikipedia.org/wiki/List_of_S%26P_500_companies"
 SP500 <- url %>%
   xml2::read_html() %>%
@@ -80,22 +66,25 @@ SP500 <- url %>%
   html_table()
 SP500 <- SP500[[1]]
 Tix <- SP500$Symbol
-#randomly select 5 stocks
-set.seed(100)
-s=sample(Tix, 5)
-```
-Five stocks were selected randomly that download from this [link](https://en.wikipedia.org/wiki/List_of_S%26P_500_companies) i.e. `r s` where 
 
-`r s[1]`=fORTIVE Corp, `r s[2]`= Zimmer Biomet Holdings, `r s[3]`=Oracle Corp., `r s[4]`=Citrix Systems, and `r s[5]`=Xilinx.
+set.seed(100)
+stocks_names <- sample(Tix, 5)
+```
+
+Five stocks were selected randomly that download from this [link](https://en.wikipedia.org/wiki/List_of_S%26P_500_companies) i.e. `r stocks_names` where 
+
+`r stocks_names[1]`=fORTIVE Corp, `r stocks_names[2]`= Zimmer Biomet Holdings, `r stocks_names[3]`=Oracle Corp., `r stocks_names[4]`=Citrix Systems, and `r stocks_names[5]`=Xilinx.
+
 
 # Temporal Scale 
 
 In this analysis, a  time span for last 3 years i.e. from  "2017-04-01" till "2020-04-01" were considered.
-```{r stock2, echo=TRUE}
+```{r time_span, echo=FALSE, include=FALSE}
 #time span for last 3 years
 three_year_ago <- seq(as.Date("2020-04-01"), length = 2, by = "-3 year")[2]
-getSymbols(s, from = three_year_ago, to = as.Date("2020-04-01"))
+getSymbols(stocks_names, from = three_year_ago, to = as.Date("2020-04-01"))
 ```
+
 
 
 
@@ -105,13 +94,17 @@ Here clcl() function is used to compute change in closing price.
 For example, "AAPL" company has change in closing price( clcl) as given below
 clcl= ((AAPL.Close at t+1 )-(AAPL.Close t))/(AAPL.Close at  t), where t= time step
 
-```{r stock3, echo=TRUE}
+```{r fetch_data, echo=TRUE}
 
-FTV<- na.omit(ClCl(get(s[1])))
-ZBH <- na.omit(ClCl(get(s[2])))
-ORCL<- na.omit(ClCl(get(s[3])))
-CTXS <- na.omit(ClCl(get(s[4])))
-XLNX<- na.omit(ClCl(get(s[5])))
+FTV <- na.omit(ClCl(get(stocks_names[1]))) # Fortive Corp
+ZBH <- na.omit(ClCl(get(stocks_names[2]))) # Zimmer Biomet Holdings Inc.
+ORCL <- na.omit(ClCl(get(stocks_names[3]))) # Oracle Corporation
+CTXS <- na.omit(ClCl(get(stocks_names[4]))) # Citrix Systems, Inc.
+XLNX <- na.omit(ClCl(get(stocks_names[5]))) # Xilinx, Inc.
+
+stocks_considered <- cbind(FTV, ZBH, ORCL, CTXS, XLNX)
+colnames(stocks_considered) = c("FTV", "ZBH", "ORCL", "CTXS", "XLNX")
+
 ```
 
 # Matrix 
@@ -119,127 +112,99 @@ XLNX<- na.omit(ClCl(get(s[5])))
  This first matrix has 10x7 dimensions as it considers 3 portfolio out of 5 giving a combination of C(5,3)=10 portfolios.
 ```{r stock4, echo=TRUE}
 final=matrix(NA,10, 7)
-colnames(final)=c(s,"Exp return","Risk")
+colnames(final)=c(stocks_names,"Exp return","Risk")
 ```
 
 The below code estimate weight,the daily expected return and risk considering  stocks out of 5 giving a combination of C(5,3)=10 portfolios.
 
-```{r stock5, echo=TRUE}
-for (i in 1:10) {
-  # attributes the returns data to a new object
-  stocks=cbind(FTV,ZBH,ORCL,CTXS,XLNX)
-  #compute the combination of picking 3 stocks out of 5 eqXLNXs to 10
-  mat <- combn(1:5, 3)
-  #converts to a list  with each element consist of 3 stocks
-  aa=split(mat, rep(1:ncol(mat), each = nrow(mat)))
-  #select 3 stocks from the object stocks having 5 stocks
-  x=stocks[,aa[[i]]] 
-  # Estimation of mu and Sigma
-  sigma_stocks <- cov(x)
-  colnames(sigma_stocks)=c("Stock1","Stock2","Stock3")
-  mu <-sapply(x, mean)
-  # Compute weight
-  p<-c(1,1,1)
-  num <-solve(sigma_stocks)%*%p
-  den=t(p) %*% solve(sigma_stocks)%*%p
-  omega_star <-1/den[1] * num
-  # C= total amount of investment i.e. 1 million
-  C=1e6
-  #computes the expected daily returns
-  mu_star <-t(omega_star)%*% mu*C
-  # computes the daily risk 
-  sigma_star=t(omega_star)%*%sigma_stocks%*%omega_star*C^2
-  #Insert the expected daily return to the predefined matrix
-  final[i,aa[[i]]]=c(t(omega_star))
-   #Insert the daily risk to the predefined matrix
-  final[i,6:7]=c(mu_star,sigma_star)
+```{r prepping_loop, echo=FALSE}
+C <- 1e6
+p <- c()
+
+stocks <- data.frame("FTV" = double(0),
+                     "ZBH" = double(0),
+                     "ORCL" = double(0),
+                     "CTXS" = double(0),
+                     "XLNX" = double(0),
+                     "ExpReturn" = double(0),
+                     "Risk" = double(0)
+)
+```
+
+
+```{r loop, echo=TRUE}
+
+for (i in 1:3){
+        # updates vector p
+        p <- append(p,1) 
+        #generates combinations (by3, by2, single)
+        comb <- combn(1:ncol(stocks_considered), i)
+        temp <- split(comb, rep(1:ncol(comb), each = nrow(comb)))
+        
+        # creates empty matrix for all combinations of stocks 
+        summary <- matrix(nrow = ncol(comb), ncol = (ncol(stocks_considered)+2))
+        colnames(summary) = c(stocks_names,"ExpReturn","Risk")
+        
+        # iterates for all combinations of stocks in each combination option
+        for (j in 1:ncol(comb)) {
+                # creates matrix based on the combinations in 'temp'
+                x <- stocks_considered[,temp[[j]]] 
+                # defines sigma and mu values
+                sigma <- cov(x)
+                mu <-sapply(x, mean)
+                # Computes weight
+                weight_calc <- (solve(sigma)%*%p)  / 
+                        (as.numeric(t(p) %*% solve(sigma) %*% p))
+                # Computes return
+                return_calc <- t(weight_calc) %*% mu * C
+                # Computes risk
+                risk_calc <- t(weight_calc) %*% sigma %*% weight_calc * (C^2)
+                
+                # assigns the calculated weights to the respective columns
+                summary[j,temp[[j]]] = c(t(weight_calc))
+                # assigns the calculates returns and risks to the respective columns
+                summary[j,6:7] = c(return_calc,risk_calc)
+        }
+        
+        # replaces NA values with 0 
+        summary <- replace_na(summary,0)
+        # adds current 'summary' to the 'stocks' data.frame
+        stocks <- rbind(stocks, summary)
 }
-#replace all NA value with 0
-# this is the final output showing weight, daily return and risk for considering 3 stocks out of 5.
-stock3=replace_na(final,0)
 ```
 
 Likewise, this loop will estimate weight,the daily expected return and risk considering 2 stocks out of 5 giving a combination of C(5,2)=10 portfolios. The procedure is indeed same as done above code.
 
-```{r stock6, echo=TRUE}
-# Selecting stock2
-final1=matrix(NA,10, 7)
-colnames(final)=c(s,"Exp return","Risk")
-for (i in 1:10) {
-  stocks=cbind(FTV,ZBH,ORCL,CTXS,XLNX)
-  mat <- combn(1:5, 2)
-  aa=split(mat, rep(1:ncol(mat), each = nrow(mat)))
-  x=stocks[,aa[[i]]] 
-  sigma_stocks <- cov(x)
-  colnames(sigma_stocks)=c("Stock1","Stock2")
-  mu <-sapply(x, mean)
-  p<-c(1,1)
-  num <-solve(sigma_stocks)%*%p
-  den=t(p) %*% solve(sigma_stocks)%*%p
-  omega_star <-1/den[1] * num
-  C=1e6
-  mu_star <-t(omega_star)%*% mu*C
-  sigma_star=t(omega_star)%*%sigma_stocks%*%omega_star*C^2
-  final1[i,aa[[i]]]=c(t(omega_star))
-  final1[i,6:7]=c(mu_star,sigma_star)
-}
-stock2=replace_na(final1,0)
-```
-
 Again, this loop will estimate weight, the daily expected return and risk considering 1 stocks out of 5 giving a combination of C(5,1)=5 is available. The procedure is indeed same as done above code.
-
-```{r stock7, echo=TRUE}
-final2=matrix(NA,5, 7)
-colnames(final)=c(s,"Exp return","Risk")
-for (i in 1:5) {
-  stocks=cbind(FTV,ZBH,ORCL,CTXS,XLNX)
-  mat <- combn(1:5, 1)
-  aa=split(mat, rep(1:ncol(mat), each = nrow(mat)))
-  x=stocks[,aa[[i]]] 
-  sigma_stocks <- cov(x)
-  mu <-sapply(x, mean)
-  p<-c(1)
-  num <-solve(sigma_stocks)%*%p
-  den=t(p) %*% solve(sigma_stocks)%*%p
-  omega_star <-1/den[1] * num
-  C=1e6
-  mu_star <-t(omega_star)%*% mu*C
-  sigma_star=t(omega_star)%*%sigma_stocks%*%omega_star*C^2
-  final2[i,aa[[i]]]=c(t(omega_star))
-  final2[i,6:7]=c(mu_star,sigma_star)
-}
-stock1=replace_na(final2,0)
-```
  
- Here, *stock* matrix showed the combine portfolios showing  with using stock size of 3,2 and 1 having a total of 25 portfolios.
-
-```{r stock8, echo=TRUE}
-#combing all portfolios
-stock=rbind(stock3,stock2,stock1)
-#showing output
-stock
-```
+ Here, *stocks* matrix showed the combine portfolios showing  with using stock size of 3,2 and 1 having a total of 25 portfolios.
 
 The best portfolios with its weight of stocks, daily expected return as well as risk is provided.
 ```{r stock9, echo=TRUE}
-#choose the row showing minimum risk
-min_risk=which.min(stock[,7])
-# rounding the values upto 5 decimals
-best=round(stock[min_risk,],5)
-best
+
+min_risk <- which.min(stocks$Risk)
+max_return <- which.max(stocks$ExpReturn)
+best <- stocks[min_risk,]
 ```
 
-Graphically, it is shown in the plot below. The red dotted showed best portfolio out of the 25 portfolios shown in black having minimum risk of `r best[7]` and daily expected return of `r best[6]`. The weight for each stocks of *FTV*, *ZBH*, and *CTXS* are `r best[1]`,`r best[2]`, and `r best[4]` respectively. So, the portfolio 2 is the best option one can invest considering the minimum risk.
+Graphically, it is shown in the plot below. The red dotted showed best portfolio out of the 25 portfolios shown in black having minimum risk of `r best$Risk` and daily expected return of `r best$ExpReturn`. The weight for each stocks of *FTV*, *ZBH*, and *CTXS* are `r best$FTV`,`r best$ZBH`, and `r best$ORCL` respectively. So, the portfolio 2 is the best option one can invest considering the minimum risk.
 ```{r stock10, echo=TRUE}
-#plot of all portfolios
-plot(stock[-min_risk,7],stock[-min_risk,6],pch=1,type = "p",  col = 1, 
-     xlab = "Investment Daily Risk",
-     ylab = "Investment Daily Expected Return", main="Stock Portfolios")
-#addition of portfolio having smallest variance
-points(best[7], best[6],pch = 1, col = 10, type = "p")
-#add legends
-legend("bottomright", c("Possible portfolio", "Min-Variance Portfolio"), col = c(1,10),
-       lty = c(-2, -1), pch = c(1, 1))
+min_risk <- which.min(stocks$Risk)
+max_return <- which.max(stocks$ExpReturn)
+
+stocks$col = "Options Analyzed"
+min = which.min(stocks[,1]) # shows the minimum value (row)
+stocks$col[min_risk] = "Lowest Risk"
+stocks$col[max_return] = "Highest Return"
+library(ggplot2)
+ggplot(stocks, aes(x=Risk, y=ExpReturn, color = col )) + 
+        geom_point() + 
+        theme_test() +
+        theme(legend.title = element_blank(), legend.position= c(0.80,0.2), 
+              plot.title = element_text(hjust = 0.5)) +
+        xlab("Portfolio Risk") + 
+        ylab("Portfolio Expected Returns") +
+        ggtitle("Your options")
 
 ```
 

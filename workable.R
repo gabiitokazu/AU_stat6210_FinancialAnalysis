@@ -109,7 +109,6 @@ legend(5.8e8,1500, c("Possible portfolio", "Min-Variance Portfolio"), col = c(1,
 min_risk <- which.min(stocks$Risk)
 max_return <- which.max(stocks$ExpReturn)
 
-
 stocks$col = "Options Analyzed"
 min = which.min(stocks[,1]) # shows the minimum value (row)
 stocks$col[min_risk] = "Lowest Risk"
@@ -118,7 +117,7 @@ library(ggplot2)
 ggplot(stocks, aes(x=Risk, y=ExpReturn, color = col )) + 
         geom_point() + 
         theme_test() +
-        theme(legend.title = element_blank(), legend.position= c(0.80,0.91), 
+        theme(legend.title = element_blank(), legend.position= c(0.85,0.85), 
               plot.title = element_text(hjust = 0.5)) +
         xlab("Portfolio Risk") + 
         ylab("Portfolio Expected Returns") +
