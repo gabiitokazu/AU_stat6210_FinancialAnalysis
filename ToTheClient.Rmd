@@ -187,7 +187,7 @@ max_return <- which.max(stocks$ExpReturn)
 best <- stocks[min_risk,]
 ```
 
-Graphically, it is shown in the plot below. The red dotted showed best portfolio out of the 25 portfolios shown in black having minimum risk of `r best$Risk` and daily expected return of `r best$ExpReturn`. The weight for each stocks of *FTV*, *ZBH*, and *CTXS* are `r best$FTV`,`r best$ZBH`, and `r best$ORCL` respectively. So, the portfolio 2 is the best option one can invest considering the minimum risk.
+Graphically, it is shown in the plot below. The red dotted showed highest return.However, green dot showed best portfolio out of the 25 portfolios shown in black having minimum risk of `r best$Risk` and daily expected return of `r best$ExpReturn`. The weight for each stocks of *FTV*, *ZBH*, and *CTXS* are `r best$FTV`,`r best$ZBH`, and `r best$ORCL` respectively. So, the portfolio 2 is the best option one can invest considering the minimum risk.
 ```{r stock10, echo=TRUE}
 min_risk <- which.min(stocks$Risk)
 max_return <- which.max(stocks$ExpReturn)
