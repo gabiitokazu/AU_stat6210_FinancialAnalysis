@@ -45,7 +45,7 @@ The team generated 25 portfolios options for the Client, based on their specifie
 - The Client's investment is $1,000,000.
 - The maximum portfolio size is 3 stocks.
 
-To do that, specific libraries (*i.e.* `rvest`, `quantmod`, `tidyverse`, and `plotly`) are used in an `R` Programming Environment. 
+To do that, specific libraries (*i.e.* `rvest`, `quantmod`, `tidyverse`, `knitr`, and `plotly`) are used in an `R` Programming Environment. 
 </div>
 
 ```{r libraries, echo=FALSE, eval=TRUE, message=FALSE, warning=FALSE}
@@ -53,6 +53,7 @@ library(rvest)
 library(quantmod)
 library(tidyverse)
 library(plotly) 
+library(knitr)
 ```
 
 \
@@ -120,13 +121,14 @@ colnames(stocks_considered) = c("FTV", "ZBH", "ORCL", "CTXS", "XLNX")
 
 ### Matrix 
 
-Then we proceed to generate portfolio options for the client
-The base matrix for the output of the respective weights a
+Then we proceed to generate portfolio options for the client, with portfolio sizes of 1, 2, and 3 stocks, computing the respective expected returns and risk for each portfolio, and providing the weights of the stocks in each portfolio option:
 
-```{r prepping_loop, echo=FALSE}
+```{r prepping_loop, echo=TRUE, warning=FALSE}
+# assigns global variables
 C <- 1e6
 p <- c()
 
+# Prepares an empty dta.frame for the `for loop` to populate with the calculations
 stocks <- data.frame("FTV" = double(0),
                      "ZBH" = double(0),
                      "ORCL" = double(0),
@@ -137,9 +139,7 @@ stocks <- data.frame("FTV" = double(0),
 )
 ```
 
-
-A matrix with 10x7 dimensions is created to store the output of weight, expected daily return and risk for each portfolios.As it considers 3 portfolio out of 5 giving a combination of C(5,3)=10 portfolios.
-```{r loop, echo=TRUE}
+```{r loop, echo=TRUE, warning=FALSE}
 
 for (i in 1:3){
         # updates vector p
@@ -178,17 +178,22 @@ for (i in 1:3){
         # adds current 'summary' to the 'stocks' data.frame
         stocks <- rbind(stocks, summary)
 }
+
 ```
 
+\
 
-Likewise, second matrix having 10x7 dimension is created for storing the weight, expected daily return and risk of each portfolios of C(5,2)=10.This is done as in the previous matrix.
+ Finally, `stocks` matrix shows the combined portfolios with stock sizes of 3, 2, and 1 having a total of 25 portfolios with its weight of stocks, expected return as well as risk is provided.
 
-Again, matrix with 5x1 dimensions is created for storing weight, the daily expected return and risk considering 1 stocks out of 5 giving a combination of C(5,1)=5 is available. The procedure is again same as done above code.
+```{r binding_stocks, echo=FALSE, eval=TRUE, message=FALSE, warning=FALSE}
+stocks <- cbind(as.data.frame(seq(1:25)),stocks)
+colnames(stocks) = c("Portfolio", "FTV", "ZBH", "ORCL", "CTXS", "XLNX", "ExpReturn", "Risk")
 
- Finally, *stock* matrix showed the combine portfolios showing  with using stock size of 3,2 and 1 having a total of 25 portfolios.
+kable(stocks, caption = "Calculated Weights for each stock in the Client's Portfolio options.")
+```
 
+As per your request, we can then find the portfolio that provides the least risk, 
 
-The best portfolios with its weight of stocks, daily expected return as well as risk is provided.
 ```{r stock9, echo=FALSE}
 # choose the portfolio with minimum risk
 min_risk <- which.min(stocks$Risk)
