@@ -212,7 +212,7 @@ plot(stock[-min_risk,7],stock[-min_risk,6],pch=1,type = "p",  col = 1,
 #addition of portfolio having smallest variance
 points(best[7], best[6],pch = 1, col = 10, type = "p")
 #add legends
-legend(5.8e8,1500, c("Possible portfolio", "Min-Variance Portfolio"), col = c(1,10),
+legend("bottomright", c("Possible portfolio", "Min-Variance Portfolio"), col = c(1,10),
        lty = c(-2, -1), pch = c(1, 1))
 
 ```
