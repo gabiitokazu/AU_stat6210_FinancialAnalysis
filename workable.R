@@ -530,31 +530,47 @@ return20<-(weight20T%*%mu20)*C
 risk20<-(weight20T%*%sigma20%*%weight20)*C*C
 
 
+#Martix for stock size is 1 
 
-
-# Matrix for portfolio size is 1
-summary1<- matrix(NA,2,5)
-dimnames(summary1)[[1]]<-c("expected return","risk")
-dimnames(summary1)[[2]]<-c("BIO","GOOG","MO","ALL","MMM")
-summary1[1,]<-c(return_bio,return_GOOG,return_MO,return_ALL,return_MMM)
-summary1[2,]<-c(risk_bio,risk_GOOG,risk_MO,risk_ALL,risk_MMM)
-knitr::kable(summary1)
-# Matrix for portfolio size is 2
-summary2<- matrix(NA,3,10)
-dimnames(summary2)[[1]]<-c("weight","expected return","risk")
-dimnames(summary2)[[2]]<-c("BIO&GOOG","BIO&MO","BIO&ALL","BIO&MMM","GOOG&MO","GOOG&ALL","GOOG&MMM","MO&ALL","MO&MMM","ALL&MMM")
-k<-c(weight1,weight2,weight3,weight4,weight5,weight6,weight7,weight8,weight9,weight10)
-summary2[2,]<-c(return1,return2,return3,return4,return5,return6,return7,return8,return9,return10)
-summary2[3,]<-c(risk1,risk2,risk3,risk4,risk5,risk6,risk7,risk8,risk9,risk10)
-knitr::kable(summary1)
-
-# Matrix for portfolio size is 3
-summary3<-matrix(NA,2,10)
-dimnames(summary3)[[1]]<-c("expected return","risk")
-dimnames(summary3)[[2]]<-c("MMM&ALL&MO","MMM&ALL&GOOG","MMM&ALL&BIO","MMM&MO&GOOG","MMM&&MO&BIO","MMM&GOOG&BIO","ALL&MO&GOOG","ALL&MO&BIO","ALL&GOOG&BIO","MO&GOOG&BIO")
-summary3[1,]<-c(return11,return12,return13,return14,return15,return16,return17,return18,return19,return20)
-summary3[2,]<-c(risk11,risk12,risk13,risk14,risk15,risk16,risk17,risk18,risk19,risk20)
-knitr::kable(summary3)
+     | stock         |    expected return      |     risk     |
+     |-|-|-|
+     |BIO           | `r return_bio`          |  `r risk_bio` |
+     |GOOG          | `r return_GOOG`         |  `r risk_GOOG`|
+     |MO            | `r return_MO`           |  `r risk_MO`  |
+     |MMM           | `r return_MMM`          |  `r risk_MMM` |
+     
+     
+#Matrix for stock size is 2
+     
+     | stocks         |    expected return      |     risk     |  weight   |
+     |-|-|-|-|
+     |BIO&GOOG        |    `r return1`         |  `r risk1`  | `r weight1` |
+     |BIO&MO          |    `r return2`         |  `r risk2`  | `r weight2` |
+     |BIO&ALL         |    `r return3`         |  `r risk3`  | `r weight3` |
+     |BIO&MMM         |    `r return4`         |  `r risk4`  | `r weight4` |
+     |GOOG&MO         |    `r return5`         |  `r risk5`  | `r weight5` |
+     |GOOG&ALL        |    `r return6`         |  `r risk6`  | `r weight6` |
+     |GOOG&MMM        |    `r return7`         |  `r risk7`  | `r weight7` |
+     |MO&ALL          |    `r return8`         |  `r risk8`  | `r weight8` |
+     |MO&MMM          |    `r return9`         |  `r risk9`  | `r weight9` |
+     |ALL&MMM         |    `r return10`        |  `r risk10` | `r weight10`|
+     
+     
+#Matrix for stock size is 3
+     
+     | stocks             |    expected return      |     risk     |  weight     |
+     |-|-|-|-|
+     |MMM&ALL&MO          |    `r return11`         |  `r risk11`  | `r weight11` |
+     |MMM&ALL&GOOG        |    `r return12`         |  `r risk12`  | `r weight12` |
+     |MMM&ALL&BIO         |    `r return13`         |  `r risk13`  | `r weight13` |
+     |MMM&MO&GOOG         |    `r return14`         |  `r risk14`  | `r weight14` |
+     |MMM&&MO&BIO         |    `r return15`         |  `r risk15`  | `r weight15` |
+     |MMM&GOOG&BIO        |    `r return16`         |  `r risk16`  | `r weight16` |
+     |ALL&MO&GOOG         |    `r return17`         |  `r risk17`  | `r weight17` |
+     |ALL&MO&BIO          |    `r return18`         |  `r risk18`  | `r weight18` |
+     |ALL&GOOG&BIO        |    `r return19`         |  `r risk19`  | `r weight19` |
+     |MO&GOOG&BIO         |    `r return20`         |  `r risk20`  | `r weight20` |
+     
 
 #Plot
 allRisk<-c(risk_bio,risk_GOOG,risk_MO,risk_ALL,risk_MMM,risk1,risk2,risk3,risk4,risk5,risk6,risk7,risk8,risk9,risk10,risk11,risk12,risk13,risk14,risk15,risk16,risk17,risk18,risk19,risk20)
