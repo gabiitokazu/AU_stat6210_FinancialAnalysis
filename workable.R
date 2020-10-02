@@ -13,9 +13,8 @@ SP500 <- SP500[[1]]
 Tix <- SP500$Symbol
 
 rm(url, SP500)
-
-# randomly select 5 stocks
-set.seed(10)
+#randomly select 5 stocks
+set.seed(100)
 stocks_names <- sample(Tix, 5)
 
 # time span for last 3 years
@@ -24,15 +23,15 @@ getSymbols(stocks_names, from = three_year_ago, to = as.Date("2020-04-01"))
 
 # Fetch returns
 
-WRK <- na.omit(ClCl(get(stocks_names[1]))) # West Rock Packaging Solutions
-DRI <- na.omit(ClCl(get(stocks_names[2]))) # Darden Restaurants Inc
-MYL <- na.omit(ClCl(get(stocks_names[3]))) # Mylan N.V.
-PEP <- na.omit(ClCl(get(stocks_names[4]))) # PepsiCo Inc
-UAL <- na.omit(ClCl(get(stocks_names[5]))) # United Airlines
+FTV <- na.omit(ClCl(get(stocks_names[1]))) # Fortive Corp
+ZBH <- na.omit(ClCl(get(stocks_names[2]))) # Zimmer Biomet Holdings Inc.
+ORCL <- na.omit(ClCl(get(stocks_names[3]))) # Oracle Corporation
+CTXS <- na.omit(ClCl(get(stocks_names[4]))) # Citrix Systems, Inc.
+XLNX <- na.omit(ClCl(get(stocks_names[5]))) # Xilinx, Inc.
 
 # attributes the returns data to a new object
-stocks_considered <- cbind(WRK,DRI,MYL,PEP,UAL)
-colnames(stocks_considered) = c("WRK","DRI","MYL","PEP","UAL")
+stocks_considered <- cbind(FTV, ZBH, ORCL, CTXS, XLNX)
+colnames(stocks_considered) = c("FTV", "ZBH", "ORCL", "CTXS", "XLNX")
 
 # assign total investment to variable C
 C <- 1e6
@@ -43,11 +42,11 @@ p <- c()
 # creates empty data.frame to be populated with the weights for each company
 # of the different sized portfolios (rows for each company-named column)
 # and respective Expected Return and Risk values.!
-stocks <- data.frame("WRK" = double(0),
-                     "DRI" = double(0),
-                     "MYL" = double(0),
-                     "PEP" = double(0),
-                     "UAL" = double(0),
+stocks <- data.frame("FTV" = double(0),
+                     "ZBH" = double(0),
+                     "ORCL" = double(0),
+                     "CTXS" = double(0),
+                     "XLNX" = double(0),
                      "ExpReturn" = double(0),
                      "Risk" = double(0)
 )
@@ -97,19 +96,20 @@ best <- stocks[min_risk,]
 
 #plot------------------------------------------------------------------------------
 plot(stocks[-min_risk,7],stocks[-min_risk,6],pch=1,type = "p",  col = 1, 
-     xlab = "Investment Daily Risk",
-     ylab = "Investment Daily Expected Return", main="Stock Portfolios")
+     xlab = "Daily Risk",
+     ylab = "Daily Expected Return", main="Stock Portfolios")
 points(best[7], best[6],pch = 1, col = 10, type = "p")
 
 legend(5.8e8,1500, c("Possible portfolio", "Min-Variance Portfolio"), col = c(1,10),
        lty = c(-2, -1), pch = c(1, 1))
 
 
+# another plot ---------------------------------------------------------------
+
 min_risk <- which.min(stocks$Risk)
 max_return <- which.max(stocks$ExpReturn)
 
 
-# another plot ---------------------------------------------------------------
 stocks$col = "Options Analyzed"
 min = which.min(stocks[,1]) # shows the minimum value (row)
 stocks$col[min_risk] = "Lowest Risk"
@@ -139,7 +139,7 @@ ggplot(stocks, aes(x=Risk, y=ExpReturn, color = col )) +
 
 
 
-#_____________________jianfeng
+#----------------------------------
 
 library(quantmod)
 library(rvest)
