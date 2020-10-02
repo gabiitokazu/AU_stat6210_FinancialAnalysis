@@ -167,7 +167,8 @@ best <- stocks[min_risk,]
 
 <div style="text-align: justify">
 
-Graphically, this is shown in the plot below. Your portfolio of choice is represented by the green dot, with the lowest risk. All other considered portfolios are represented by blue dots, with the one with the highest return in red, just for curiosity. The total risk of your best portfolio is `r best$Risk` and the daily expected return is `r best$ExpReturn`. The weight for each stock is `r best$FTV` for *Fortive Corp. Stock*, `r best$ZBH` for *Zimmer Biomet Holdings Inc. Stock*, and `r best$CTXS` for *Citrix Systems Inc. Stock*. In case you are interested, please refer to the table with the full results in the Appendix.
+Graphically, this is shown in the plot below. Your portfolio of choice is represented by the green dot, with the lowest risk. All other considered portfolios are represented by blue dots, with the one with the highest return in red, just for curiosity. The total risk of your best portfolio is `r  paste(format(round(best$Risk/ 1e6, 1), trim = TRUE), "millions")` and the daily expected return is `r round(best$ExpReturn,2)`. The weight for each stock is 
+`r round(best$FTV,2)` for *Fortive Corp. Stock*, `r round(best$ZBH,2)` for *Zimmer Biomet Holdings Inc. Stock*, and `r round(best$CTXS,2)` for *Citrix Systems Inc. Stock*. In case you are interested, please refer to the table with the full results in the Appendix.
 
 </div>
 
