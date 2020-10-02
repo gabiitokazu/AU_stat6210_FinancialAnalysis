@@ -220,14 +220,14 @@ stock=rbind(stock3,stock2,stock1)
 stock
 ```
 
-The best portfolios with its weigh tof stocks, daily expected return as well as risk is provided.
+The best portfolios with its weight of stocks, daily expected return as well as risk is provided.
 ```{r stock9, echo=FALSE}
 min_risk=which.min(stock[,7])
-best=stock[min_risk,]
+best=round(stock[min_risk,],5)
 best
 ```
 
-Graphically, it is shown in the plot below.
+Graphically, it is shown in the plot below. The red dotted showed best portfolio out of the 25 portfolios shown in black having minimum risk of `r best[7]` and daily expected return of `r best[6]`. The weight for each stocks of *MSCI*, *PBCT*, and *UAL* are `r best[3]`,`r best[4]`, and `r best[5]` respectively.
 ```{r stock10, echo=FALSE}
 plot(stock[-min_risk,7],stock[-min_risk,6],pch=1,type = "p",  col = 1, 
      xlab = "Investment Daily Risk",
