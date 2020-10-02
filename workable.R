@@ -1,8 +1,11 @@
-#bijoychandra
 rm(list =ls())
+
+
 library(rvest)
 library(quantmod)
 library(tidyverse)
+library(gtools)
+
 url <- "https://en.wikipedia.org/wiki/List_of_S%26P_500_companies"
 SP500 <- url %>%
         xml2::read_html() %>%
@@ -10,106 +13,128 @@ SP500 <- url %>%
         html_table()
 SP500 <- SP500[[1]]
 Tix <- SP500$Symbol
-#randomly select 5 stocks
+
+rm(url, SP500)
+
+# randomly select 5 stocks
 set.seed(10)
-s=sample(Tix, 5)
-#time span for last 3 years
+stocks_names <- sample(Tix, 5)
+
+# time span for last 3 years
 three_year_ago <- seq(as.Date("2020-04-01"), length = 2, by = "-3 year")[2]
-getSymbols(s, from = three_year_ago, to = as.Date("2020-04-01"))
-# gives the change in closing price
-#For example, "AAPL" company has change in closing price( clcl) as given below
-#clcl= ((AAPL.Close at t+1 )-(AAPL.Close t))/(AAPL.Close at  t)
-# Compute returns
-WRK<- na.omit(ClCl(get(s[1])))
-DRI <- na.omit(ClCl(get(s[2])))
-MSCI<- na.omit(ClCl(get(s[3])))
-PBCT <- na.omit(ClCl(get(s[4])))
-UAL<- na.omit(ClCl(get(s[5])))
-final=matrix(NA,10, 7)
-colnames(final)=c(s,"Exp return","Risk")
-for (i in 1:10) {
-        stocks=cbind(WRK,DRI,MSCI,PBCT,UAL)
-        mat <- combn(1:5, 3)
-        aa=split(mat, rep(1:ncol(mat), each = nrow(mat)))
-        x=stocks[,aa[[i]]] 
-        # Estimation of mu and Sigma
-        sigma_stocks <- cov(x)
-        colnames(sigma_stocks)=c("Stock1","Stock2","Stock3")
+getSymbols(stocks_names, from = three_year_ago, to = as.Date("2020-04-01"))
+
+# Fetch returns
+
+WRK <- na.omit(ClCl(get(stocks_names[1]))) # West Rock Packaging Solutions
+DRI <- na.omit(ClCl(get(stocks_names[2]))) # Darden Restaurants Inc
+MSCI <- na.omit(ClCl(get(stocks_names[3]))) # Msci Inc
+PBCT <- na.omit(ClCl(get(stocks_names[4]))) # People's United Financial Inc
+UAL <- na.omit(ClCl(get(stocks_names[5]))) # United Airlines
+
+# attributes the returns data to a new object
+stocks_considered <- cbind(WRK,DRI,MSCI,PBCT,UAL)
+colnames(stocks_considered) = c("WRK","DRI","MDCI","PBCT","UAL")
+
+# Creates common variables to all combination options
+# vectors p
+p1 <- c(1)
+p2 <- c(1,1)
+p3 <- c(1,1,1)
+# total investment
+C <- 1e6
+
+#-------------3 stocks options--------------------------------------------------
+#
+# generates combinations and separates them (3by3)
+comb3by3 <- combn(1:ncol(stocks_considered), 3) 
+temp <- split(comb3by3, rep(1:ncol(comb3by3), each = nrow(comb3by3)))
+
+# creates empty matrix for all combinations of stocks (3by3)
+summary_3by3 <- matrix(nrow = ncol(comb3by3), ncol = (ncol(stocks_considered)+2))
+colnames(summary_3by3) = c(stocks_names,"ExpReturn","Risk")
+
+# iterates for all combinations of stocks (3by3)
+for (i in 1:ncol(comb3by3)) {
+        x <- stocks_considered[,temp[[i]]] 
+        sigma <- cov(x)
         mu <-sapply(x, mean)
-        # Compute omega^*
-        p<-c(1,1,1)
-        num <-solve(sigma_stocks)%*%p
-        den=t(p) %*% solve(sigma_stocks)%*%p
-        omega_star <-1/den[1] * num
-        # Compute mu^*
-        C=1e6
-        mu_star <-t(omega_star)%*% mu*C
-        # Compute sigma^*
-        sigma_star=t(omega_star)%*%sigma_stocks%*%omega_star*C^2
+        # Computes weight
+        weight_calc <- (solve(sigma)%*%p3)  / 
+                (as.numeric(t(p3) %*% solve(sigma) %*% p3))
+        # Compute return
+        return_calc <- t(weight_calc) %*% mu * C
+        # Compute risk
+        risk_calc <- t(weight_calc) %*% sigma %*% weight_calc * (C^2)
         
-        final[i,aa[[i]]]=c(t(omega_star))
-        final[i,6:7]=c(mu_star,sigma_star)
+        summary_3by3[i,temp[[i]]] = c(t(weight_calc))
+        summary_3by3[i,6:7] = c(return_calc,risk_calc)
 }
-stock3=replace_na(final,0)
 
-# Selecting stock2
-final1=matrix(NA,10, 7)
-colnames(final)=c(s,"Exp return","Risk")
-for (i in 1:10) {
-        stocks=cbind(WRK,DRI,MSCI,PBCT,UAL)
-        mat <- combn(1:5, 2)
-        aa=split(mat, rep(1:ncol(mat), each = nrow(mat)))
-        x=stocks[,aa[[i]]] 
-        # Estimation of mu and Sigma
-        sigma_stocks <- cov(x)
-        colnames(sigma_stocks)=c("Stock1","Stock2")
+summary_3by3 <- replace_na(summary_3by3,0)
+
+
+#-------------2 stocks options--------------------------------------------------
+#
+# generates combinations and separates them (2 by 2)
+comb2by2 <- combn(1:ncol(stocks_considered), 2) 
+temp <- split(comb2by2, rep(1:ncol(comb2by2), each = nrow(comb2by2)))
+
+# creates empty matrix for all combinations of stocks (2by2)
+summary_2by2 <- matrix(nrow = ncol(comb2by2), ncol = (ncol(stocks_considered)+2))
+colnames(summary_2by2) = c(stocks_names,"ExpReturn","Risk")
+
+# iterates for all combinations of stocks (2by2)
+for (i in 1:ncol(comb2by2)) {
+        x <- stocks_considered[,temp[[i]]] 
+        sigma <- cov(x)
         mu <-sapply(x, mean)
-        # Compute omega^*
-        p<-c(1,1)
-        num <-solve(sigma_stocks)%*%p
-        den=t(p) %*% solve(sigma_stocks)%*%p
-        omega_star <-1/den[1] * num
-        # Compute mu^*
-        C=1e6
-        mu_star <-t(omega_star)%*% mu*C
-        # Compute sigma^*
-        sigma_star=t(omega_star)%*%sigma_stocks%*%omega_star*C^2
+        # Computes weight
+        weight_calc <- (solve(sigma)%*%p2)  / 
+                (as.numeric(t(p2) %*% solve(sigma) %*% p2))
+        # Compute return
+        return_calc <- t(weight_calc) %*% mu * C
+        # Compute risk
+        risk_calc <- t(weight_calc) %*% sigma %*% weight_calc * (C^2)
         
-        final1[i,aa[[i]]]=c(t(omega_star))
-        final1[i,6:7]=c(mu_star,sigma_star)
+        summary_2by2[i,temp[[i]]] = c(t(weight_calc))
+        summary_2by2[i,6:7] = c(return_calc,risk_calc)
 }
-stock2=replace_na(final1,0)
+
+summary_2by2 <- replace_na(summary_2by2,0)
 
 
-# select stock1
+#-------------single stock options--------------------------------------------------
+#
+# generates combinations and separates them
+comb1by1 <- combn(1:ncol(stocks_considered), 1) 
+temp <- split(comb1by1, rep(1:ncol(comb1by1), each = nrow(comb1by1)))
 
-final2=matrix(NA,5, 7)
-colnames(final)=c(s,"Exp return","Risk")
-for (i in 1:5) {
-        stocks=cbind(WRK,DRI,MSCI,PBCT,UAL)
-        mat <- combn(1:5, 1)
-        aa=split(mat, rep(1:ncol(mat), each = nrow(mat)))
-        x=stocks[,aa[[i]]] 
-        # Estimation of mu and Sigma
-        sigma_stocks <- cov(x)
+# creates empty matrix for all combinations of stocks (2by2)
+summary_1by1 <- matrix(nrow = ncol(comb1by1), ncol = (ncol(stocks_considered)+2))
+colnames(summary_1by1) = c(stocks_names,"ExpReturn","Risk")
+
+# iterates for all combinations of stocks (2by2)
+for (i in 1:ncol(comb1by1)) {
+        x <- stocks_considered[,temp[[i]]] 
+        sigma <- cov(x)
         mu <-sapply(x, mean)
-        # Compute omega^*
-        p<-c(1)
-        num <-solve(sigma_stocks)%*%p
-        den=t(p) %*% solve(sigma_stocks)%*%p
-        omega_star <-1/den[1] * num
+        # Computes weight
+        weight_calc <- (solve(sigma)%*%p1)  / 
+                (as.numeric(t(p1) %*% solve(sigma) %*% p1))
+        # Compute return
+        return_calc <- t(weight_calc) %*% mu * C
+        # Compute risk
+        risk_calc <- t(weight_calc) %*% sigma %*% weight_calc * (C^2)
         
-        # Compute mu^*
-        C=1e6
-        mu_star <-t(omega_star)%*% mu*C
-        # Compute sigma^*
-        sigma_star=t(omega_star)%*%sigma_stocks%*%omega_star*C^2
-        
-        final2[i,aa[[i]]]=c(t(omega_star))
-        final2[i,6:7]=c(mu_star,sigma_star)
+        summary_1by1[i,temp[[i]]] = c(t(weight_calc))
+        summary_1by1[i,6:7] = c(return_calc,risk_calc)
 }
-stock1=replace_na(final2,0)
-stock=rbind(stock3,stock2,stock1)
+
+summary_1by1 <- replace_na(summary_1by1,0)
+
+
+stock=rbind(summary_3by3,summary_2by2,summary_1by1)
 min_risk=which.min(stock[,7])
 best=stock[min_risk,]
 
@@ -121,94 +146,6 @@ points(best[7], best[6],pch = 1, col = 10, type = "p")
 
 legend(5.8e8,1500, c("Possible portfolio", "Min-Variance Portfolio"), col = c(1,10),
        lty = c(-2, -1), pch = c(1, 1))
-
-
-
-
-
-
-#--------Gabii (see discussion in Forum (Group9 page in Canvas)------------------
-library(quantmod)
-library(rvest)
-library(BatchGetSymbols)
-
-
-# 'read.html' function canvass the html page, finds the css selectors that matches the data, and extracts it, creating a xml_document. 
-sp500 <- read_html("https://en.wikipedia.org/wiki/List_of_S%26P_500_companies")
-# for the new object 'sp500' we track the nodes that corresponds to the selector ('html_nodes') that matches the data and extract the contents of the data into another object ('html_text').
-# the %>% operator is called a pipe. It passes the object that precedes it as the first argument to the function that follows it.
-sp500 %>% 
-        html_nodes(".text") %>%  
-        html_text() -> ticker_sp500 
-
-
-SP500_symbol <- ticker_sp500[(1:499)*2+1]
-SP500_symbol[SP500_symbol == "BRK.B"] <- "BRK-B"
-SP500_symbol[SP500_symbol == "BF.B"] <- "BF-B"
-
-SP500_symbol <- as.data.frame(SP500_symbol)
-
-#gets info on all stocks on SP500:
-future::plan(future::multisession, 
-             workers = 4) # uses 4 cores ( to see how many cores you have available type 'future::availableCores()')
-stocks_all <- BatchGetSymbols(tickers = ticker_sp500[(1:499)*2+1], 
-                              first.date = '2017-04-01', 
-                              do.parallel = TRUE, 
-                              do.cache = FALSE)
-
-stocks_all <- as.data.frame(stocks_all[["df.tickers"]])
-
-list.stocks_all <- list(data.frame())
-
-for (i in 1:dim(SP500_symbol)[1]){
-        df <- as.data.frame(stocks_all %>% filter(
-                stocks_all$ticker == SP500_symbol$SP500_symbol[[i]]
-        ))
-        if(dim(df)[1] != 0){
-                list.stocks_all[[i]] <- df
-        }
-}
-
-# not necessary, but helps keepint the global env tidy
-rm(df, i)
-
-list.stocks_all <- Filter(NROW, list.stocks_all)
-
-var.stocks_all <- data.frame(stock=character(0),variance=double(0))
-
-for (i in 1:length(list.stocks_all)[1]){
-        price <- list.stocks_all[[i]]$price.close
-        stock <- list.stocks_all[[i]]$ticker
-        var.stock <- as.data.frame(cbind(as.character(stock[[1]]),var(price)))
-        var.stocks_all <- rbind(as.data.frame(var.stocks_all), as.data.frame(var.stock))
-}
-
-# not necessary, but helps keepint the global env tidy
-rm(price, stock, var.stock, i)
-
-colnames(var.stocks_all) = c("stock","variance")
-
-best.stocks <- var.stocks_all[order(as.double(var.stocks_all$variance)),][1:5, ] # order all stocks from low to high and get only the first 5 rows out of it
-best.stocks_names <- best.stocks[[1]] # list with just the names
-best.stocks_names <- as.data.frame(t(best.stocks_names))
-
-best.stocks_data <- list(data.frame())
-
-for (i in 1:dim(best.stocks_names)[2]){
-        df <- as.data.frame(stocks_all %>% filter(
-                stocks_all$ticker == best.stocks_names[[i]]
-        ))
-        if(dim(df)[1] != 0){
-                best.stocks_data[[i]] <- df
-        }
-}
-
-# rm() not necessary, but helps keepint the global env tidy
-rm(df, i)
-rm(best.stocks, best.stocks_names)
-rm(var.stocks_all, var.stocks_ordered)
-rm(ticker_sp500, SP500_symbol, sp500, stocks_all)
-
 
 
 
