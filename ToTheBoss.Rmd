@@ -40,7 +40,7 @@ Portfolio developed for a homework activity during the class STAT 6210 - R Progr
 # Required Library.
 
 First of required libraries i.e. rvest, quantmod and tidyverse are called. 
-```{r stock, echo=TRUE}
+```{r stock, echo=FALSE, include=FALSE}
 library(rvest)
 library(quantmod)
 library(tidyverse)
@@ -50,7 +50,7 @@ library(tidyverse)
 
 
 
-```{r stock1, echo=TRUE}
+```{r stock1, echo=FALSE}
 url <- "https://en.wikipedia.org/wiki/List_of_S%26P_500_companies"
 SP500 <- url %>%
   xml2::read_html() %>%
@@ -59,51 +59,55 @@ SP500 <- url %>%
 SP500 <- SP500[[1]]
 Tix <- SP500$Symbol
 #randomly select 5 stocks
-set.seed(10)
+set.seed(100)
 s=sample(Tix, 5)
 ```
-Five stocks were selected randomly that download from this [link](https://en.wikipedia.org/wiki/List_of_S%26P_500_companies) i.e. `r s`
+Five stocks were selected randomly that download from this [link](https://en.wikipedia.org/wiki/List_of_S%26P_500_companies) i.e. `r s` where 
 
-# Temporal Scale
+`r s[1]`=fORTIVE Corp, `r s[2]`= Zimmer Biomet Holdings, `r s[3]`=Oracle Corp., `r s[4]`=Citrix Systems, and `r s[5]`=Xilinx.
 
-In this analysis, a period of 3 years i.e. from  "2017-04-01" till "2020-04-01" were considered.
-```{r stock2, echo=TRUE}
+# Temporal Scale 
+
+In this analysis, a  time span for last 3 years i.e. from  "2017-04-01" till "2020-04-01" were considered.
+```{r stock2, echo=FALSE, include=FALSE}
 #time span for last 3 years
 three_year_ago <- seq(as.Date("2020-04-01"), length = 2, by = "-3 year")[2]
 getSymbols(s, from = three_year_ago, to = as.Date("2020-04-01"))
 ```
 
 
+
 # Compute returns
 
-Here clcl() function is used to compute change in closing price.
-For example, "AAPL" company has change in closing price( clcl) as given below
-clcl= ((AAPL.Close at t+1 )-(AAPL.Close t))/(AAPL.Close at  t), where t= time step
+clcl() function is used to compute change in closing price.For example, "AAPL" company has change in closing price( clcl) as given below clcl= ((AAPL.Close at t+1 )-(AAPL.Close t))/(AAPL.Close at  t), where t= time step
 
-```{r stock3, echo=TRUE}
+```{r stock3, echo=FALSE}
 
-WRK<- na.omit(ClCl(get(s[1])))
-DRI <- na.omit(ClCl(get(s[2])))
-MSCI<- na.omit(ClCl(get(s[3])))
-PBCT <- na.omit(ClCl(get(s[4])))
-UAL<- na.omit(ClCl(get(s[5])))
+FTV<- na.omit(ClCl(get(s[1])))
+ZBH <- na.omit(ClCl(get(s[2])))
+ORCL<- na.omit(ClCl(get(s[3])))
+CTXS <- na.omit(ClCl(get(s[4])))
+XLNX<- na.omit(ClCl(get(s[5])))
 ```
 
 # Matrix 
 
- This first matrix has 10x7 dimensions as it considers 3 portfolio out of 5 i.e. combination of C(5,3)=10
-```{r stock4, echo=TRUE}
+A matrix with 10x7 dimensions is created to store the output of weight, expected daily return and risk for each portfolios.As it considers 3 portfolio out of 5 giving a combination of C(5,3)=10 portfolios.
+```{r stock4, echo=FALSE}
 final=matrix(NA,10, 7)
 colnames(final)=c(s,"Exp return","Risk")
 ```
 
-This loop  estimates the daily expected return and risk for each portfolios.
-Finally, this will choose the portfolio having minimum variance.
-```{r stock5, echo=TRUE}
+
+```{r stock5, echo=FALSE}
 for (i in 1:10) {
-  stocks=cbind(WRK,DRI,MSCI,PBCT,UAL)
+  # attributes the returns data to a new object
+  stocks=cbind(FTV,ZBH,ORCL,CTXS,XLNX)
+  #compute the combination of picking 3 stocks out of 5 eqXLNXs to 10
   mat <- combn(1:5, 3)
+  #converts to a list  with each element consist of 3 stocks
   aa=split(mat, rep(1:ncol(mat), each = nrow(mat)))
+  #select 3 stocks from the object stocks having 5 stocks
   x=stocks[,aa[[i]]] 
   # Estimation of mu and Sigma
   sigma_stocks <- cov(x)
@@ -114,114 +118,103 @@ for (i in 1:10) {
   num <-solve(sigma_stocks)%*%p
   den=t(p) %*% solve(sigma_stocks)%*%p
   omega_star <-1/den[1] * num
-  # Compute mu^*
+  # C= total amount of investment i.e. 1 million
   C=1e6
+  #computes the expected daily returns
   mu_star <-t(omega_star)%*% mu*C
-  # Compute sigma^*
+  # computes the daily risk 
   sigma_star=t(omega_star)%*%sigma_stocks%*%omega_star*C^2
-  
+  #Insert the expected daily return to the predefined matrix
   final[i,aa[[i]]]=c(t(omega_star))
+   #Insert the daily risk to the predefined matrix
   final[i,6:7]=c(mu_star,sigma_star)
 }
 #replace all NA value with 0
+# this is the final output showing weight, daily return and risk for considering 3 stocks out of 5.
 stock3=replace_na(final,0)
 ```
 
-Likewise, this loop will estimate the daily expected return and risk for 3 portfolio out of 5 i.e. combination of C(5,2)=10
+Likewise, second matrix having 10x7 dimension is created for storing the weight, expected daily return and risk of each portfolios of C(5,2)=10.This is done as in the previous matrix.
 
-```{r stock6, echo=TRUE}
+```{r stock6, echo=FALSE}
 # Selecting stock2
 final1=matrix(NA,10, 7)
 colnames(final)=c(s,"Exp return","Risk")
 for (i in 1:10) {
-  stocks=cbind(WRK,DRI,MSCI,PBCT,UAL)
+  stocks=cbind(FTV,ZBH,ORCL,CTXS,XLNX)
   mat <- combn(1:5, 2)
   aa=split(mat, rep(1:ncol(mat), each = nrow(mat)))
   x=stocks[,aa[[i]]] 
-  # Estimation of mu and Sigma
   sigma_stocks <- cov(x)
   colnames(sigma_stocks)=c("Stock1","Stock2")
   mu <-sapply(x, mean)
-  # Compute weight
   p<-c(1,1)
   num <-solve(sigma_stocks)%*%p
   den=t(p) %*% solve(sigma_stocks)%*%p
   omega_star <-1/den[1] * num
-  # Compute mu^*
   C=1e6
   mu_star <-t(omega_star)%*% mu*C
-  # Compute sigma^*
   sigma_star=t(omega_star)%*%sigma_stocks%*%omega_star*C^2
-  
   final1[i,aa[[i]]]=c(t(omega_star))
   final1[i,6:7]=c(mu_star,sigma_star)
 }
-#replace all NA value with 0
 stock2=replace_na(final1,0)
 ```
 
-Again, this loop will estimate the daily expected return and risk for portfolios 1
-i.e.  combination of C(5,1)=5.
+Again, matrix with 5x1 dimensions is created for storing weight, the daily expected return and risk considering 1 stocks out of 5 giving a combination of C(5,1)=5 is available. The procedure is again same as done above code.
 
-```{r stock7, echo=TRUE}
+```{r stock7, echo=FALSE}
 final2=matrix(NA,5, 7)
 colnames(final)=c(s,"Exp return","Risk")
 for (i in 1:5) {
-  stocks=cbind(WRK,DRI,MSCI,PBCT,UAL)
+  stocks=cbind(FTV,ZBH,ORCL,CTXS,XLNX)
   mat <- combn(1:5, 1)
   aa=split(mat, rep(1:ncol(mat), each = nrow(mat)))
   x=stocks[,aa[[i]]] 
-  # Estimation of mu and Sigma
   sigma_stocks <- cov(x)
   mu <-sapply(x, mean)
-  # Compute weight
   p<-c(1)
   num <-solve(sigma_stocks)%*%p
   den=t(p) %*% solve(sigma_stocks)%*%p
   omega_star <-1/den[1] * num
-  
-  # Compute mu^*
   C=1e6
   mu_star <-t(omega_star)%*% mu*C
-  # Compute sigma^*
   sigma_star=t(omega_star)%*%sigma_stocks%*%omega_star*C^2
-  
   final2[i,aa[[i]]]=c(t(omega_star))
   final2[i,6:7]=c(mu_star,sigma_star)
 }
-#replace all NA value with 0
 stock1=replace_na(final2,0)
 ```
- Here, *stock* matrix showed the combine portfolios with using stock size of 3,2 and 1.
+ 
+ Finally, *stock* matrix showed the combine portfolios showing  with using stock size of 3,2 and 1 having a total of 25 portfolios.
 
-```{r stock8, echo=TRUE}
+```{r stock8, echo=FALSE}
+#combing all portfolios
 stock=rbind(stock3,stock2,stock1)
-stock
+round(stock,3)
 ```
 
 The best portfolios with its weight of stocks, daily expected return as well as risk is provided.
-```{r stock9, echo=TRUE}
+```{r stock9, echo=FALSE}
+#choose the row showing minimum risk
 min_risk=which.min(stock[,7])
-best=round(stock[min_risk,],5)
+# rounding the values upto 3 decimals
+best=round(stock[min_risk,],3)
 best
 ```
 
-Graphically, it is shown in the plot below. The red dotted showed best portfolio out of the 25 portfolios shown in black having minimum risk of `r best[7]` and daily expected return of `r best[6]`. The weight for each stocks of *MSCI*, *PBCT*, and *UAL* are `r best[3]`,`r best[4]`, and `r best[5]` respectively.
+Graphically, it is shown in the plot below. The red dotted showed best portfolio out of the 25 portfolios shown in black having minimum risk of `r best[7]` and daily expected return of `r best[6]`. The weight for each stocks of *FTV*, *ZBH*, and *CTXS* are `r best[1]`,`r best[2]`, and `r best[4]` respectively. So, the portfolio 2 is the best option one can invest considering the minimum risk.
 ```{r stock10, echo=TRUE}
+#plot of all portfolios
 plot(stock[-min_risk,7],stock[-min_risk,6],pch=1,type = "p",  col = 1, 
      xlab = "Investment Daily Risk",
      ylab = "Investment Daily Expected Return", main="Stock Portfolios")
+#addition of portfolio having smallest variance
 points(best[7], best[6],pch = 1, col = 10, type = "p")
-
+#add legends
 legend(5.8e8,1500, c("Possible portfolio", "Min-Variance Portfolio"), col = c(1,10),
        lty = c(-2, -1), pch = c(1, 1))
 
 ```
 
-
-
-
-
-
-</div>
 
