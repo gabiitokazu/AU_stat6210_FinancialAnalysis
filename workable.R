@@ -124,7 +124,28 @@ ggplot(stocks, aes(x=Risk, y=ExpReturn, color = col )) +
         ylab("Portfolio Expected Returns") +
         ggtitle("Your options")
 
+# another plot... -------------------------------------------------------------
 
+library(plotly) 
+
+min_var <- stocks[which.min(stocks$Risk),]
+
+p <- stocks %>%
+ggplot(aes(x = Risk, y = ExpReturn)) +
+        geom_point() +
+        theme_classic() +
+        labs(x = 'Portfolio Risk',
+             y = 'Portfolio Returns',
+             title = "Portfolio Optimization") +
+        geom_point(aes(x = Risk,
+                       y = ExpReturn), data = min_var, color = 'red') +
+        annotate(geom = 'segment', x = 0.14, xend = 0.135,  y = 0.01, 
+                 yend = 0.06, color = 'red', arrow = arrow(type = "open")) +
+        annotate(geom = 'segment', x = 0.22, xend = 0.2275,  y = 0.405, 
+                 yend = 0.365, color = 'red', arrow = arrow(type = "open"))
+
+
+ggplotly(p)
 
 
 

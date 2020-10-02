@@ -44,6 +44,7 @@ First of required libraries i.e. rvest, quantmod and tidyverse are called.
 library(rvest)
 library(quantmod)
 library(tidyverse)
+library(plotly) 
 ```
 
 # Stock selection.
@@ -161,25 +162,38 @@ Again, matrix with 5x1 dimensions is created for storing weight, the daily expec
 
 The best portfolios with its weight of stocks, daily expected return as well as risk is provided.
 ```{r stock9, echo=FALSE}
-#choose the row showing minimum risk
-min_risk <- which.min(stocks[,7])
+# choose the portfolio with minimum risk
+min_risk <- which.min(stocks$Risk)
 
-# rounding the values upto 3 decimals
+# choose the portfolio with maximum return
+max_return <- which.max(stocks$ExpReturn)
+
+min_risk <- which.min(stocks[,7])
 best <- stocks[min_risk,]
-best
 ```
 
 Graphically, it is shown in the plot below. The red dotted showed best portfolio out of the 25 portfolios shown in black having minimum risk of `r best[7]` and daily expected return of `r best[6]`. The weight for each stocks of *FTV*, *ZBH*, and *CTXS* are `r best[1]`,`r best[2]`, and `r best[4]` respectively. So, the portfolio 2 is the best option one can invest considering the minimum risk.
-```{r stock10, echo=TRUE}
-#plot of all portfolios
-plot(stocks[-min_risk,7],stocks[-min_risk,6],pch=1,type = "p",  col = 1, 
-     xlab = "Investment Daily Risk",
-     ylab = "Investment Daily Expected Return", main="Stock Portfolios")
-#addition of portfolio having smallest variance
-points(best[7], best[6],pch = 1, col = 10, type = "p")
-#add legends
-legend("bottomright", c("Possible portfolio", "Min-Variance Portfolio"), col = c(1,10),
-       lty = c(-2, -1), pch = c(1, 1))
+
+```{r stock10, echo=FALSE, eval=TRUE, fig.align='center', fig.width=6.5, fig.height=4.5}
+
+min_var <- stocks[which.min(stocks$Risk),]
+
+p <- stocks %>%
+ggplot(aes(x = Risk, y = ExpReturn)) +
+        geom_point() +
+        theme_classic() +
+        labs(x = 'Portfolio Risk',
+             y = 'Portfolio Returns',
+             title = "Client's Portfolio Optimization") +
+        geom_point(aes(x = Risk,
+                       y = ExpReturn), data = min_var, color = 'red') +
+        annotate(geom = 'segment', x = 0.14, xend = 0.135,  y = 0.01, 
+                 yend = 0.06, color = 'red', arrow = arrow(type = "open")) +
+        annotate(geom = 'segment', x = 0.22, xend = 0.2275,  y = 0.405, 
+                 yend = 0.365, color = 'red', arrow = arrow(type = "open"))
+
+ggplotly(p)
+
 
 ```
 
