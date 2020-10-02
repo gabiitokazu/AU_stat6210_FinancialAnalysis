@@ -14,13 +14,6 @@ pagetitle: "Homework 2, Group 9: to the Client"
 
 ```
 
-## Dear valued Client,
-### Please find below our finalized report with your current options. Please contact us if you need anything else, we will be happy to assist you in this new journey!.
-\
-
-#### Best regards,
-##### Ana Gabriela Itokazu, Jianfeng Zhang, and Takhellambam Bijoychandra Singh.
-
 ***
 <div class="disclosure">
 
@@ -29,34 +22,28 @@ Portfolio developed for a homework activity during the class STAT 6210 - R Progr
 </div>
 
 ***
+
+## Dear valued Client,
+### Please find below our finalized report with your current options. Please contact us if you need anything else, we will be happy to assist you in this new journey!.
+\
+
+#### Best regards,
+##### Ana Gabriela Itokazu, Jianfeng Zhang, and Takhellambam Bijoychandra Singh.
+
 <div style="text-align: justify">
 
-# Financial Report
-The five companies that were selected are listed below, each followed by its label, that is used to identify the stock in the databases.
+## Financial Report
 
-- West Rock Packaging Solutions (WRK)
-- Darden Restaurants Inc. (DRI)
-- Mylan Pharmaceuticals (MYL)
-- PepsiCo Inc. (PBCT)
-- United Airlines (UAL)
-
-
-The stocks considered for this report are listed in the S&P 500 (Standard & Poor's 500 Index), which incorporates the current 500 largest U.S. publicly traded companies. This was done not only based on the availability of the data, but also because this data base is a benchmark for financial analysis. For an optimized portfolio, we based our analysis in 5 randomly-sampled companies from the S&P 500, and simulated portfolios of different sizes (1, 2, and 3 companies), and with different options of weights for the said companies, in order to find the least risk.
-
-
+The stocks considered for this report are listed in the [S&P 500](https://en.wikipedia.org/wiki/List_of_S%26P_500_companies) (Standard & Poor's 500 Index), which incorporates the current 500 largest U.S. publicly traded companies. This was done not only based on the availability of the data, but also because this data base is a benchmark for financial analysis. For an optimized portfolio, we based our analysis in 5 randomly-sampled companies from the S&P 500, and simulated portfolios of different sizes (1, 2, and 3 companies), and with different options of weights for the said companies, in order to find the least risk.
 
 </div>
 
-# Required Library.
-
-First of required libraries i.e. rvest, quantmod and tidyverse are called. 
-```{r stock, echo=TRUE}
+```{r stock, echo=FALSE, message=FALSE, warning=FALSE}
 library(rvest)
 library(quantmod)
 library(tidyverse)
+library(knitr)
 ```
-
-# Stock selection.
 
 ```{r random_sample, echo=FALSE}
 url <- "https://en.wikipedia.org/wiki/List_of_S%26P_500_companies"
@@ -71,53 +58,58 @@ set.seed(100)
 stocks_names <- sample(Tix, 5)
 ```
 
-Five stocks were selected randomly that download from this [link](https://en.wikipedia.org/wiki/List_of_S%26P_500_companies) i.e. `r stocks_names` where 
+<div style="text-align: justify">
 
-`r stocks_names[1]`=fORTIVE Corp, `r stocks_names[2]`= Zimmer Biomet Holdings, `r stocks_names[3]`=Oracle Corp., `r stocks_names[4]`=Citrix Systems, and `r stocks_names[5]`=Xilinx.
+The five companies that were selected are listed below, each followed by its label, that is used to identify the stock in the databases.
 
+- Fortive Corp (`r stocks_names[1]`)
+- Zimmer Biomet Holdings Inc. (`r stocks_names[2]`)
+- Oracle Corporation (`r stocks_names[3]`)
+- Citrix Systems, Inc. (`r stocks_names[4]`)
+- Xilinx, Inc. (`r stocks_names[5]`)
 
-# Temporal Scale 
+</div>
 
-In this analysis, a  time span for last 3 years i.e. from  "2017-04-01" till "2020-04-01" were considered.
 ```{r time_span, echo=FALSE, include=FALSE}
 #time span for last 3 years
-three_year_ago <- seq(as.Date("2020-04-01"), length = 2, by = "-3 year")[2]
-getSymbols(stocks_names, from = three_year_ago, to = as.Date("2020-04-01"))
+three_year_ago <- seq(as.Date("2020-09-01"), length = 2, by = "-3 year")[2]
+end <- as.Date("2020-09-01")
+getSymbols(stocks_names, from = three_year_ago, to = end)
 ```
 
+<div style="text-align: justify">
 
+For us to better evaluate your options, this analysis included a time span considering the behavior of the said companies stocks for last 3 years: from `r three_year_ago` until `r end`.
 
+### Simulations
 
-# Compute returns
+We analyzed the data for the Closing Prices for all five companies within the said time span, likewise:
 
-Here clcl() function is used to compute change in closing price.
-For example, "AAPL" company has change in closing price( clcl) as given below
-clcl= ((AAPL.Close at t+1 )-(AAPL.Close t))/(AAPL.Close at  t), where t= time step
+</div>
 
-```{r fetch_data, echo=TRUE}
+```{r fetch_data, echo=FALSE, warning=FALSE}
 
 FTV <- na.omit(ClCl(get(stocks_names[1]))) # Fortive Corp
 ZBH <- na.omit(ClCl(get(stocks_names[2]))) # Zimmer Biomet Holdings Inc.
 ORCL <- na.omit(ClCl(get(stocks_names[3]))) # Oracle Corporation
-CTXS <- na.omit(ClCl(get(stocks_names[4]))) # Citrix Systems, Inc.
-XLNX <- na.omit(ClCl(get(stocks_names[5]))) # Xilinx, Inc.
+CTXS <- na.omit(ClCl(get(stocks_names[4]))) # Citrix Systems Inc.
+XLNX <- na.omit(ClCl(get(stocks_names[5]))) # Xilinx Inc.
 
 stocks_considered <- cbind(FTV, ZBH, ORCL, CTXS, XLNX)
 colnames(stocks_considered) = c("FTV", "ZBH", "ORCL", "CTXS", "XLNX")
 
+stocks_view <- head(stocks_considered)
+kable(stocks_view)
+
 ```
 
-# Matrix 
+<div style="text-align: justify">
 
- This first matrix has 10x7 dimensions as it considers 3 portfolio out of 5 giving a combination of C(5,3)=10 portfolios.
-```{r stock4, echo=TRUE}
-final=matrix(NA,10, 7)
-colnames(final)=c(stocks_names,"Exp return","Risk")
-```
+To do that, we assembled combinations of stocks to generate all the possible portfolios of sizes 1, 2, and 3 stocks; yielding 25 different Portfolios to consider. We considered both Expected Returns and Risk for each of the stock, and optimized the options by calculating different weights for each stock on the Portfolios of sizes bigger than 1, so the total investment is used properly.
 
-The below code estimate weight,the daily expected return and risk considering  stocks out of 5 giving a combination of C(5,3)=10 portfolios.
+</div>
 
-```{r prepping_loop, echo=FALSE}
+```{r loop, echo=FALSE}
 C <- 1e6
 p <- c()
 
@@ -129,10 +121,6 @@ stocks <- data.frame("FTV" = double(0),
                      "ExpReturn" = double(0),
                      "Risk" = double(0)
 )
-```
-
-
-```{r loop, echo=TRUE}
 
 for (i in 1:3){
         # updates vector p
@@ -171,28 +159,20 @@ for (i in 1:3){
         # adds current 'summary' to the 'stocks' data.frame
         stocks <- rbind(stocks, summary)
 }
-```
-
-Likewise, this loop will estimate weight,the daily expected return and risk considering 2 stocks out of 5 giving a combination of C(5,2)=10 portfolios. The procedure is indeed same as done above code.
-
-Again, this loop will estimate weight, the daily expected return and risk considering 1 stocks out of 5 giving a combination of C(5,1)=5 is available. The procedure is indeed same as done above code.
- 
- Here, *stocks* matrix showed the combine portfolios showing  with using stock size of 3,2 and 1 having a total of 25 portfolios.
-
-The best portfolios with its weight of stocks, daily expected return as well as risk is provided.
-```{r stock9, echo=TRUE}
 
 min_risk <- which.min(stocks$Risk)
 max_return <- which.max(stocks$ExpReturn)
 best <- stocks[min_risk,]
 ```
 
-Graphically, it is shown in the plot below. The red dotted showed best portfolio out of the 25 portfolios shown in black having minimum risk of `r best$Risk` and daily expected return of `r best$ExpReturn`. The weight for each stocks of *FTV*, *ZBH*, and *CTXS* are `r best$FTV`,`r best$ZBH`, and `r best$ORCL` respectively. So, the portfolio 2 is the best option one can invest considering the minimum risk.
-```{r stock10, echo=TRUE}
-min_risk <- which.min(stocks$Risk)
-max_return <- which.max(stocks$ExpReturn)
+<div style="text-align: justify">
 
-stocks$col = "Options Analyzed"
+Graphically, this is shown in the plot below. Your portfolio of choice is represented by the green dot, with the lowest risk. All other considered portfolios are represented by blue dots, with the one with the highest return in red, just for curiosity. The total risk of your best portfolio is `r best$Risk` and the daily expected return is `r best$ExpReturn`. The weight for each stock is `r best$FTV` for *Fortive Corp. Stock*, `r best$ZBH` for *Zimmer Biomet Holdings Inc. Stock*, and `r best$CTXS` for *Citrix Systems Inc. Stock*. In case you are interested, please refer to the table with the full results in the Appendix.
+
+</div>
+
+```{r stock10, echo=FALSE, eval=TRUE, fig.align="center"}
+stocks$col = "Option Analyzed"
 min = which.min(stocks[,1]) # shows the minimum value (row)
 stocks$col[min_risk] = "Lowest Risk"
 stocks$col[max_return] = "Highest Return"
@@ -200,12 +180,47 @@ library(ggplot2)
 ggplot(stocks, aes(x=Risk, y=ExpReturn, color = col )) + 
         geom_point() + 
         theme_test() +
-        theme(legend.title = element_blank(), legend.position= c(0.80,0.2), 
+        theme(legend.title = element_blank(), legend.position= c(0.85,0.20), 
               plot.title = element_text(hjust = 0.5)) +
         xlab("Portfolio Risk") + 
         ylab("Portfolio Expected Returns") +
         ggtitle("Your options")
 
 ```
+\
+
+<div style="text-align: justify">
+Therefore, we recommend that you invest in the portfolio 17. This includes the companies *Fortive Corp. Stock*, *Zimmer Biomet Holdings Inc. Stock*, and *Citrix Systems Inc. Stock*, and it considers the minimum risk possible.
 
 
+\
+In case of any doubt please let us know so we can better assist you.!
+
+</div>
+
+
+\
+\
+\
+
+### Appendix
+
+Table with all portfolio options, representing the weights for each company stock and respective Expected Return and Risks. The portfolio option with the lowest risk is highlighted in green, and the option with the highest return, in grey.
+
+```{r stocks_table, echo=FALSE, eval=TRUE, message=FALSE, warning=FALSE}
+
+library(kableExtra)
+
+colnames(stocks) = c("FTV", "ZBH", "ORCL", "CTXS", "XLNX", "Expected Return", "Risk", "Status")
+
+stocks %>%
+  kable(booktabs = T) %>%
+  kable_styling() %>%
+  row_spec(which(stocks$Status == "Lowest Risk"),
+           color = "black", background = "green") %>%
+  row_spec(which(stocks$Status == "Highest Return"),
+           color = "black", background = "grey")
+
+```
+
+</div>

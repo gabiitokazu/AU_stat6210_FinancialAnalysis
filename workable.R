@@ -18,8 +18,9 @@ set.seed(100)
 stocks_names <- sample(Tix, 5)
 
 # time span for last 3 years
-three_year_ago <- seq(as.Date("2020-04-01"), length = 2, by = "-3 year")[2]
-getSymbols(stocks_names, from = three_year_ago, to = as.Date("2020-04-01"))
+three_year_ago <- seq(as.Date("2020-09-01"), length = 2, by = "-3 year")[2]
+end <- as.Date("2020-09-01")
+getSymbols(stocks_names, from = three_year_ago, to = end)
 
 # Fetch returns
 
@@ -117,7 +118,7 @@ library(ggplot2)
 ggplot(stocks, aes(x=Risk, y=ExpReturn, color = col )) + 
         geom_point() + 
         theme_test() +
-        theme(legend.title = element_blank(), legend.position= c(0.85,0.85), 
+        theme(legend.title = element_blank(), legend.position= c(0.85,0.20), 
               plot.title = element_text(hjust = 0.5)) +
         xlab("Portfolio Risk") + 
         ylab("Portfolio Expected Returns") +
