@@ -409,34 +409,9 @@ summary {
 <div id="required-library." class="section level1">
 <h1>Required Library.</h1>
 <p>First of required libraries i.e. rvest, quantmod and tidyverse are called.</p>
-<pre class="r"><code>library(rvest)</code></pre>
-<pre><code>## Loading required package: xml2</code></pre>
-<pre class="r"><code>library(quantmod)</code></pre>
-<pre><code>## Loading required package: xts</code></pre>
-<pre><code>## Loading required package: zoo</code></pre>
-<pre><code>## 
-## Attaching package: &#39;zoo&#39;</code></pre>
-<pre><code>## The following objects are masked from &#39;package:base&#39;:
-## 
-##     as.Date, as.Date.numeric</code></pre>
-<pre><code>## Loading required package: TTR</code></pre>
-<pre><code>## Registered S3 method overwritten by &#39;quantmod&#39;:
-##   method            from
-##   as.zoo.data.frame zoo</code></pre>
-<pre><code>## Version 0.4-0 included new data defaults. See ?getSymbols.</code></pre>
-<pre class="r"><code>library(tidyverse)</code></pre>
-<pre><code>## -- Attaching packages ------ tidyverse 1.3.0 --</code></pre>
-<pre><code>## v ggplot2 3.3.2     v purrr   0.3.4
-## v tibble  3.0.3     v dplyr   1.0.2
-## v tidyr   1.1.2     v stringr 1.4.0
-## v readr   1.3.1     v forcats 0.5.0</code></pre>
-<pre><code>## -- Conflicts --------- tidyverse_conflicts() --
-## x dplyr::filter()         masks stats::filter()
-## x dplyr::first()          masks xts::first()
-## x readr::guess_encoding() masks rvest::guess_encoding()
-## x dplyr::lag()            masks stats::lag()
-## x dplyr::last()           masks xts::last()
-## x purrr::pluck()          masks rvest::pluck()</code></pre>
+<pre class="r"><code>library(rvest)
+library(quantmod)
+library(tidyverse)</code></pre>
 </div>
 <div id="stock-selection." class="section level1">
 <h1>Stock selection.</h1>
@@ -509,7 +484,7 @@ colnames(final)=c(stocks_names,&quot;Exp return&quot;,&quot;Risk&quot;)</code></
 <pre class="r"><code>min_risk &lt;- which.min(stocks$Risk)
 max_return &lt;- which.max(stocks$ExpReturn)
 best &lt;- stocks[min_risk,]</code></pre>
-<p>Graphically, it is shown in the plot below. The red dot showed highest return.However, green dot showed best portfolio out of the 25 portfolios shown in black having minimum risk of 1.441544410^{8} and daily expected return of 431.6173826. The weight for each stocks of <em>FTV</em>, <em>ZBH</em>, and <em>CTXS</em> are 0.1817474,0.2640866, and 0 respectively. So, the portfolio 2 is the best option one can invest considering the minimum risk.</p>
+<p>Graphically, it is shown in the plot below. The red dotted showed best portfolio out of the 25 portfolios shown in black having minimum risk of 1.441544410^{8} and daily expected return of 431.6173826. The weight for each stocks of <em>FTV</em>, <em>ZBH</em>, and <em>CTXS</em> are 0.1817474,0.2640866, and 0 respectively. So, the portfolio 2 is the best option one can invest considering the minimum risk.</p>
 <pre class="r"><code>min_risk &lt;- which.min(stocks$Risk)
 max_return &lt;- which.max(stocks$ExpReturn)
 
