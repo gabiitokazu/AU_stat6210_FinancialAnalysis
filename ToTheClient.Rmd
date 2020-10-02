@@ -59,50 +59,184 @@ For the last task, in order to find the optimal weights we denote the vector of 
 
 </div>
 
+# Required Library.
+
+First of required libraries i.e. rvest, quantmod and tidyverse are called. 
 ```{r stock, echo=FALSE}
 library(rvest)
 library(quantmod)
+library(tidyverse)
+```
+
+# Stock selection.
+
+Five stocks were selected randomly that download from this [link](https://en.wikipedia.org/wiki/List_of_S%26P_500_companies)
+
+```{r stock1, echo=FALSE}
 url <- "https://en.wikipedia.org/wiki/List_of_S%26P_500_companies"
 SP500 <- url %>%
-     xml2::read_html() %>%
-     html_nodes(xpath='//*[@id="mw-content-text"]/div/table[1]') %>%
-     html_table()
+  xml2::read_html() %>%
+  html_nodes(xpath='//*[@id="mw-content-text"]/div/table[1]') %>%
+  html_table()
 SP500 <- SP500[[1]]
 Tix <- SP500$Symbol
-
 #randomly select 5 stocks
 set.seed(10)
 s=sample(Tix, 5)
-s
+```
 
+# Teporal Scale
+
+A period of 3 years i.e. from  "2017-04-01" till "2020-04-01" were considered.
+```{r stock2, echo=FALSE}
 #time span for last 3 years
 three_year_ago <- seq(as.Date("2020-04-01"), length = 2, by = "-3 year")[2]
 getSymbols(s, from = three_year_ago, to = as.Date("2020-04-01"))
+```
 
-# gives the change in closing price
-#For example, "AAPL" company has change in closing price( clcl) as given below
-#clcl= ((AAPL.Close at t+1 )-(AAPL.Close t))/(AAPL.Close at  t)
 
-stock1<- na.omit(ClCl(get(s[1])))
-stock2 <- na.omit(ClCl(get(s[2])))
-stock3<- na.omit(ClCl(get(s[3])))
-stock4 <- na.omit(ClCl(get(s[4])))
-stock5<- na.omit(ClCl(get(s[5])))
+# Compute returns
 
-#varaince of stock
-sigma_stocks <- var(cbind(stock1, stock2,stock3,stock4,stock5))
-colnames(sigma_stocks)=c("stock1","stock2","stock3","stock4","stock5")
+Here clcl() function is used inorder tp compute its return.
+ It provides the change in closing price.
+For example, "AAPL" company has change in closing price( clcl) as given below
+clcl= ((AAPL.Close at t+1 )-(AAPL.Close t))/(AAPL.Close at  t), where t= time step
 
-#diagonal elements of stock varaince
-a=diag(sigma_stocks)
-#first 3 minimum values
-b=sort(a)[1:3]
-#giving the corresponding stock
-stock_1=which(a==b[1], arr.ind=TRUE)
-stock_2=which(a==b[2], arr.ind=TRUE)
-stock_3=which(a==b[3], arr.ind=TRUE)
+```{r stock3, echo=FALSE}
+
+WRK<- na.omit(ClCl(get(s[1])))
+DRI <- na.omit(ClCl(get(s[2])))
+MSCI<- na.omit(ClCl(get(s[3])))
+PBCT <- na.omit(ClCl(get(s[4])))
+UAL<- na.omit(ClCl(get(s[5])))
+```
+
+# Matrix 
+
+ This first matrix has 10x7 dimensions as it considers 3 portfolio out of 5.
+```{r stock4, echo=FALSE}
+final=matrix(NA,10, 7)
+colnames(final)=c(s,"Exp return","Risk")
+```
+
+This loop will estiamte the daily expected return and risk for each portfolios.
+Finaly, this will choose the portfolio having minimum variance.
+```{r stock5, echo=FALSE}
+for (i in 1:10) {
+  stocks=cbind(WRK,DRI,MSCI,PBCT,UAL)
+  mat <- combn(1:5, 3)
+  aa=split(mat, rep(1:ncol(mat), each = nrow(mat)))
+  x=stocks[,aa[[i]]] 
+  # Estimation of mu and Sigma
+  sigma_stocks <- cov(x)
+  colnames(sigma_stocks)=c("Stock1","Stock2","Stock3")
+  mu <-sapply(x, mean)
+  # Compute weight
+  p<-c(1,1,1)
+  num <-solve(sigma_stocks)%*%p
+  den=t(p) %*% solve(sigma_stocks)%*%p
+  omega_star <-1/den[1] * num
+  # Compute mu^*
+  C=1e6
+  mu_star <-t(omega_star)%*% mu*C
+  # Compute sigma^*
+  sigma_star=t(omega_star)%*%sigma_stocks%*%omega_star*C^2
+  
+  final[i,aa[[i]]]=c(t(omega_star))
+  final[i,6:7]=c(mu_star,sigma_star)
+}
+#replace all NA value with 0
+stock3=replace_na(final,0)
+```
+
+Likewise, this loop will estimate the daily expected return and risk for portfolios 2.
+
+```{r stock6, echo=FALSE}
+# Selecting stock2
+final1=matrix(NA,10, 7)
+colnames(final)=c(s,"Exp return","Risk")
+for (i in 1:10) {
+  stocks=cbind(WRK,DRI,MSCI,PBCT,UAL)
+  mat <- combn(1:5, 2)
+  aa=split(mat, rep(1:ncol(mat), each = nrow(mat)))
+  x=stocks[,aa[[i]]] 
+  # Estimation of mu and Sigma
+  sigma_stocks <- cov(x)
+  colnames(sigma_stocks)=c("Stock1","Stock2")
+  mu <-sapply(x, mean)
+  # Compute weight
+  p<-c(1,1)
+  num <-solve(sigma_stocks)%*%p
+  den=t(p) %*% solve(sigma_stocks)%*%p
+  omega_star <-1/den[1] * num
+  # Compute mu^*
+  C=1e6
+  mu_star <-t(omega_star)%*% mu*C
+  # Compute sigma^*
+  sigma_star=t(omega_star)%*%sigma_stocks%*%omega_star*C^2
+  
+  final1[i,aa[[i]]]=c(t(omega_star))
+  final1[i,6:7]=c(mu_star,sigma_star)
+}
+stock2=replace_na(final1,0)
+```
+
+# select stock1
+
+again, this loop will estimate the daily expected return and risk for portfolios 1.
+
+```{r stock7, echo=FALSE}
+final2=matrix(NA,5, 7)
+colnames(final)=c(s,"Exp return","Risk")
+for (i in 1:5) {
+  stocks=cbind(WRK,DRI,MSCI,PBCT,UAL)
+  mat <- combn(1:5, 1)
+  aa=split(mat, rep(1:ncol(mat), each = nrow(mat)))
+  x=stocks[,aa[[i]]] 
+  # Estimation of mu and Sigma
+  sigma_stocks <- cov(x)
+  mu <-sapply(x, mean)
+  # Compute weight
+  p<-c(1)
+  num <-solve(sigma_stocks)%*%p
+  den=t(p) %*% solve(sigma_stocks)%*%p
+  omega_star <-1/den[1] * num
+  
+  # Compute mu^*
+  C=1e6
+  mu_star <-t(omega_star)%*% mu*C
+  # Compute sigma^*
+  sigma_star=t(omega_star)%*%sigma_stocks%*%omega_star*C^2
+  
+  final2[i,aa[[i]]]=c(t(omega_star))
+  final2[i,6:7]=c(mu_star,sigma_star)
+}
+stock1=replace_na(final2,0)
+```
+ This matrix showed the combine portfolios with using stock size of 3,2 and 1.
+
+```{r stock8, echo=FALSE}
+stock=rbind(stock3,stock2,stock1)
+stock
+```
+
+The best portfolios with its weigh tof stocks, daily expected return as well as risk is provided.
+```{r stock9, echo=FALSE}
+min_risk=which.min(stock[,7])
+best=stock[min_risk,]
+best
+```
+
+Graphically, it is shown in the plot below.
+```{r stock10, echo=FALSE}
+plot(stock[-min_risk,7],stock[-min_risk,6],pch=1,type = "p",  col = 1, 
+     xlab = "Investment Daily Risk",
+     ylab = "Investment Daily Expected Return", main="Stock Portfolios")
+points(best[7], best[6],pch = 1, col = 10, type = "p")
+
+legend(5.8e8,1500, c("Possible portfolio", "Min-Variance Portfolio"), col = c(1,10),
+       lty = c(-2, -1), pch = c(1, 1))
 
 ```
-here, stock `r stock_1`, stock`r stock_2` and stock`r stock_3` has smallest variance of change in  closing price.
 
 
