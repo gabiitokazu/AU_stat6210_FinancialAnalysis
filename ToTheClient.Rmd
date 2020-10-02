@@ -38,7 +38,7 @@ The stocks considered for this report are listed in the [S&P 500](https://en.wik
 
 </div>
 
-```{r stock, echo=FALSE, message=FALSE, warning=FALSE}
+```{r libraries, echo=FALSE, message=FALSE, warning=FALSE}
 library(rvest)
 library(quantmod)
 library(tidyverse)
