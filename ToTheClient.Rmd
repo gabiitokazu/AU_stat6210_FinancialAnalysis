@@ -17,7 +17,7 @@ pagetitle: "Homework 2, Group 9: to the Client"
 ***
 <div class="disclosure">
 
-Portfolio developed for a homework activity during the class STAT 6210 - R Programming for Data Science (Auburn University, Fall 2020). The general idea is that the group works as a quantitative analysts for an investment bank, and we needed to present a Portfolio for our boss (Dr. Molinari, in this very real case) with a client's options. This document was produced in RMarkDown, and finalized in `r format(Sys.Date(), '%B %d, %Y')`. One can find more about this assignment [here](https://github.com/AU-R-Programming/HW2-9/blob/master/ToTheClient.Rmd).
+Portfolio developed for a homework activity during the class STAT 6210 - R Programming for Data Science (Auburn University, Fall 2020). The general idea is that the group works as a quantitative analysts for an investment bank, and we needed to present a Portfolio for our boss (Dr. Molinari, in this very real case) with a client's options. This document was produced in RMarkDown, and finalized in October 02, 2020. One can find more about this assignment [here](https://github.com/AU-R-Programming/HW2-9/blob/master/ToTheClient.Rmd).
 
 </div>
 
