@@ -23,6 +23,8 @@ Report developed for a homework activity during the class STAT 6210 - R Programm
 
 ***
 
+***
+
 ## Dear valued Client,
 ### Please find below our finalized report with your current options. Please contact us if you need anything else, we will be happy to assist you in this new journey!.
 \
@@ -30,7 +32,10 @@ Report developed for a homework activity during the class STAT 6210 - R Programm
 #### Best regards,
 ##### Ana Gabriela Itokazu, Jianfeng Zhang, and Takhellambam Bijoychandra Singh.
 
+***
+
 <div style="text-align: justify">
+
 
 ## Financial Report
 

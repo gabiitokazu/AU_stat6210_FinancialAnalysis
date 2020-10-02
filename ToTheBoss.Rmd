@@ -20,24 +20,31 @@ pagetitle: "Homework 2, Group 9: to the Boss"
 
 <div class="disclosure">
 
-Report developed for a homework activity during the class STAT 6210 - R Programming for Data Science (Auburn University, Fall 2020). The general idea is that the group works as a quantitative analysts for an investment bank, and we needed to present a Portfolio for our boss (Dr. Molinari, in this very real case) with the a client's options. This document was finalized in `r format(Sys.Date(), '%B %d, %Y')`. One can find more about this assignment [here](https://github.com/AU-R-Programming/HW2-9/blob/master/ToTheBoss.Rmd).
+Report developed for a homework activity during the class STAT 6210 - R Programming for Data Science (Auburn University, Fall 2020). The general idea is that the group works as a quantitative analysts for an investment bank, and we needed to present a Portfolio for our boss (Dr. Molinari, in this very real case) with the a client's options. This document was finalized in October 02, 2020. One can find more about this assignment [here](https://github.com/AU-R-Programming/HW2-9/blob/master/ToTheBoss.Rmd).
 
 </div>
+
+***
 
 ***
 
 
 ## Dear Boss,
 ### Please find our finalized report below.
+
 \
 
 #### Best regards,
 ##### Ana Gabriela Itokazu, Jianfeng Zhang, and Takhellambam Bijoychandra Singh.
 
+
+***
+
 <div style="text-align: justify">
+
 \
+
 # Financial Report
-\
 
 The team generated 25 portfolios options for the Client, based on their specified constraints, such as:
 
@@ -58,9 +65,13 @@ library(knitr)
 
 \
 
+<div style="text-align: justify">
+
 ### Stock selection
 
 Five stocks were selected from [S&P 500](https://en.wikipedia.org/wiki/List_of_S%26P_500_companies) randomly:
+
+</div>
 
 ```{r random_sample, echo=TRUE, warning=FALSE}
 url <- "https://en.wikipedia.org/wiki/List_of_S%26P_500_companies"
@@ -77,6 +88,9 @@ set.seed(100)
 stocks_names <- sample(Tix, 5)
 ```
 
+
+<div style="text-align: justify">
+
 The stocks selected are:
 
 - Fortive Corp (`r stocks_names[1]`)
@@ -91,6 +105,8 @@ The stocks selected are:
 
 In this analysis, a time span for the last 3 years (*i.e.* from  "2017-09-01" to "2020-09-01") was considered, and the data was fetched from the S&P 500 data base:
 
+</div>
+
 ```{r time_fetch, echo=TRUE, warning=FALSE, message=FALSE}
 #time span for last 3 years
 three_year_ago <- seq(as.Date("2020-04-01"), length = 2, by = "-3 year")[2]
@@ -100,9 +116,14 @@ getSymbols(stocks_names, from = three_year_ago, to = as.Date("2020-04-01"))
 
 \
 
+
+<div style="text-align: justify">
+
 ### Compute returns
 
 To compute the change in closing price values for each stock, the `ClCl()` function was applied to each of the stock's data, and all stocks were combined into one `xts` object:
+
+</div>
 
 ```{r ClCl, echo=TRUE, warning=FALSE}
 
@@ -119,9 +140,13 @@ colnames(stocks_considered) = c("FTV", "ZBH", "ORCL", "CTXS", "XLNX")
 
 \
 
+<div style="text-align: justify">
+
 ### Matrix 
 
 Then we proceed to generate portfolio options for the client, with portfolio sizes of 1, 2, and 3 stocks, computing the respective expected returns and risk for each portfolio, and providing the weights of the stocks in each portfolio option:
+
+</div>
 
 ```{r prepping_loop, echo=TRUE, warning=FALSE}
 # assigns global variables
@@ -183,7 +208,11 @@ for (i in 1:3){
 
 \
 
+<div style="text-align: justify">
+
  Finally, `stocks` matrix shows the combined portfolios with stock sizes of 3, 2, and 1 having a total of 25 portfolios with its weight of stocks, expected return as well as risk is provided.
+
+</div>
 
 ```{r binding_calculations, echo=FALSE, eval=TRUE, message=FALSE, warning=FALSE}
 stocks <- cbind(as.data.frame(seq(1:25)),stocks)
@@ -192,7 +221,11 @@ colnames(stocks) = c("Portfolio", "FTV", "ZBH", "ORCL", "CTXS", "XLNX", "ExpRetu
 kable(stocks, caption = "Calculated Weights for each stock in the Client's Portfolio options.")
 ```
 
+<div style="text-align: justify">
+
 Per your request, we can then find the portfolio that provides the least risk, and out of curiosity, the portfolio with the maximum return:
+
+</div>
 
 ```{r RiskReturn, echo=TRUE, warning=FALSE}
 # choose the portfolio with minimum risk
@@ -212,7 +245,11 @@ kable(MinMax)
 
 ```
 
+<div style="text-align: justify">
+
 The plot below gives a better visualization of the data, and one can also refer to the Appendix section for a detailed table with the weight, calculated Risk and Expected Return values. The red dot represents the best portfolio out of the 25 options generated, considering the constraints of the client. This portfolio presents a risk of `r  paste(format(round(best$Risk/ 1e6, 1), trim = TRUE), "millions")` and daily expected return of `r round(best$ExpReturn,2)`. The weight for each stock is `r round(best$FTV,2)` for *Fortive Corp. Stock*, `r round(best$ZBH,2)` for *Zimmer Biomet Holdings Inc. Stock*, and `r round(best$CTXS,2)` for *Citrix Systems Inc. Stock*.
+
+</div>
 
 ```{r stock10, echo=FALSE, eval=TRUE, fig.align='center', fig.width=6.5, fig.height=4.5}
 
@@ -240,9 +277,13 @@ ggplotly(p)
 \
 \
 
+<div style="text-align: justify">
+
 ### Appendix
 
 Table with all portfolio options, representing the weights for each company stock and respective Expected Return and Risks. The portfolio option with the lowest risk is highlighted in green, and the option with the highest return, in grey.
+
+</div>
 
 ```{r stocks_table, echo=FALSE, eval=TRUE, message=FALSE, warning=FALSE}
 
