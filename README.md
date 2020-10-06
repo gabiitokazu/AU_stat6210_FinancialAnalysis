@@ -1,17 +1,16 @@
 ***
-# HW2-9
+## homework activity developed during the class R Programming for Data Science
+## Auburn University - Fall semester, 2020.
+## Prof. Dr. Roberto Molinari
 ***
 
-Group Repo for Homework 2
-STAT 6210 - R Programming for Data Science \
-Auburn University - Fall 2020 \
-Prof. Dr. Roberto Molinari
-
+This is a mirror of the original repo, that was/is maintained in a private organization.
+This was a group project, and the original members of the group are:
 * Ana Gabriela Itokazu
 * Jianfeng Zhang
 * Takhellambam Bijoychandra Singh
 
-**Finished by October 02, 2020.**
+**Finished and turned in: October 02, 2020.**
 
 ***
 
