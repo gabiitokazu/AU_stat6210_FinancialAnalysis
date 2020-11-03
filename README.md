@@ -1,7 +1,7 @@
 ***
-## homework activity developed during the class R Programming for Data Science
-## Auburn University - Fall semester, 2020.
-## Prof. Dr. Roberto Molinari
+#### homework activity developed during the class R Programming for Data Science
+#### Auburn University - Fall semester, 2020.
+#### Prof. Dr. Roberto Molinari
 ***
 
 This is a mirror of the original repo, that was/is maintained in a private organization.
